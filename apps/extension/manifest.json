@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "Uncanny",
+  "version": "0.2.0",
+  "description": "Estimate whether Shorts, Reels, and TikToks contain AI-generated visual content.",
+  "permissions": ["activeTab", "scripting"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Analyze with Uncanny"
+  }
+}
