@@ -1,0 +1,19 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Uncanny capture test</title>
+<style>body{background:#101114;color:white;font:16px system-ui}video{width:180px;height:320px}#frames{display:flex;gap:8px}#frames img{width:90px}button{padding:12px}</style>
+<h1>Local video capture test</h1><p>No social-media account or external media is used.</p>
+<video id="video" muted playsinline></video><canvas id="source" width="360" height="640" hidden></canvas>
+<p><button id="start">Capture six real test frames</button></p><p id="status">Ready</p><div id="frames"></div>
+<script src="../apps/extension/capture.js"></script><script>
+const canvas=document.getElementById('source'), video=document.getElementById('video'), ctx=canvas.getContext('2d');
+let count=0;
+function paint(){count++;ctx.fillStyle='#2454d6';ctx.fillRect(0,0,360,640);ctx.fillStyle='#e27640';ctx.fillRect((count*3)%280,180,80,160);ctx.fillStyle='white';ctx.font='32px sans-serif';ctx.fillText('Frame '+count,30,80);requestAnimationFrame(paint)}paint();
+video.srcObject=canvas.captureStream(30);
+document.getElementById('start').onclick=async()=>{
+ const button=document.getElementById('start'), status=document.getElementById('status'), frames=document.getElementById('frames');
+ button.disabled=true;frames.replaceChildren();
+ try {await video.play();await new Promise(r=>setTimeout(r,200));const session=crypto.randomUUID();
+ for(let i=0;i<6;i++){if(i)await new Promise(r=>setTimeout(r,1100));const frame=sampleVideo(session,location.href);const img=new Image();img.src=frame.data;img.alt='Test frame '+(i+1);frames.append(img);status.textContent='Captured '+(i+1)+' of 6';}
+ status.textContent='PASS: six real video frames captured';
+ }catch(e){status.textContent='FAIL: '+e.message}finally{button.disabled=false}
+};
+</script></html>
