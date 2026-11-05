@@ -60,13 +60,14 @@ function showFrames(frames) {
     figure.append(img, caption); gallery.append(figure);
   });
   document.getElementById('capture-note').textContent = frames.some(f => f.method === 'Visible video crop')
-    ? 'Captured from the visible player. In-player text or controls may appear. No AI analysis yet.'
-    : 'Captured directly from the video pixels. No AI analysis yet.';
+    ? 'Captured from the visible player. In-player text or controls may appear.'
+    : 'Captured directly from the video pixels.';
+  setScoreFrames(frames);
   results.hidden = false;
 }
 async function capture() {
   const job = { id: crypto.randomUUID(), cancelled: false }; activeJob = job;
-  gallery.replaceChildren(); results.hidden = true;
+  setScoreFrames([]); gallery.replaceChildren(); results.hidden = true;
   scanner.classList.add('is-scanning'); activity.classList.add('active'); button.classList.add('cancel');
   button.textContent = 'Cancel capture'; headline.textContent = 'Looking closer…';
   const frames = [];
@@ -81,7 +82,7 @@ async function capture() {
     headline.textContent = 'Six frames captured.';
     status.textContent = 'Check the thumbnails below. Nothing has been uploaded or scored.';
   } catch (error) {
-    gallery.replaceChildren(); results.hidden = true;
+    setScoreFrames([]); gallery.replaceChildren(); results.hidden = true;
     headline.textContent = job.cancelled ? 'Capture cancelled.' : 'Could not capture.';
     status.textContent = error.message || 'Capture failed. Reopen Uncanny and try again.';
   } finally {
@@ -95,10 +96,10 @@ button.addEventListener('click', () => {
   else capture();
 });
 document.getElementById('clear-frames').addEventListener('click', () => {
-  gallery.replaceChildren(); results.hidden = true; headline.textContent = 'Frames cleared.';
+  setScoreFrames([]); gallery.replaceChildren(); results.hidden = true; headline.textContent = 'Frames cleared.';
   status.textContent = 'Play a video, then capture again when ready.';
 });
-window.addEventListener('pagehide', () => { if (activeJob) activeJob.cancelled = true; });
+window.addEventListener('pagehide', () => { if (activeJob) activeJob.cancelled = true; setScoreFrames([]); });
 async function initialize() {
   button.disabled = true;
   if (!globalThis.chrome?.scripting?.executeScript) {

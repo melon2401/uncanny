@@ -26,13 +26,11 @@
 - [ ] Report false-positive and false-negative rates, not just accuracy.
 - [ ] Decide when insufficient evidence should produce an inconclusive result.
 
-## Then: backend and integration
+## Implemented: local detector integration
 
-- [ ] Define a versioned frame-analysis API.
-- [ ] Add request limits, validation, timeouts and cancellation behavior.
-- [ ] Obtain explicit consent before transmitting captured frames.
-- [ ] Keep provider credentials on the server, never in the extension.
-- [ ] Wire real results into the interface without treating scores as proof.
+- [x] Verified model weights, six-frame scoring endpoint and input limits.
+- [x] Explicit local scoring, retry after failure and per-frame results.
+- [x] Inconclusive state for conflicting signals and repeated frames.
 
 ## Later
 

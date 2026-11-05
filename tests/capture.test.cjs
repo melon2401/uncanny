@@ -62,6 +62,7 @@ function popupHarness({ cancel = false, switchTab = false } = {}) {
     setTimeout: resolve => { if (cancel) els.get('analyze-button').listeners.click(); resolve(); },
     chrome: { tabs: { query: async () => [{ ...tab, id: switchTab && samples ? 8 : 7 }] }, scripting: { executeScript: async () => [{ result: { time: ++samples, data: 'data:image/jpeg;base64,frame', method: 'Video pixels' } }] } } });
   vm.runInContext(source, ctx);
+  vm.runInContext(fs.readFileSync(path.join(root, 'score.js'), 'utf8'), ctx);
   vm.runInContext(fs.readFileSync(path.join(root, 'popup.js'), 'utf8'), ctx);
   return { ctx, els, samples: () => samples };
 }
@@ -81,4 +82,19 @@ test('tab switch aborts before sampling another frame', async () => {
   const h = popupHarness({ switchTab: true }); await h.ctx.initialize(); await h.ctx.capture();
   assert.equal(h.samples(), 1); assert.equal(h.els.get('frames').children.length, 0);
   assert.match(h.els.get('status').textContent, /active page changed/);
+});
+test('local score uses captured pixels and lets the user retry after an offline error', async () => {
+  const h = popupHarness(); await h.ctx.initialize(); await h.ctx.capture();
+  Object.assign(h.ctx, {AbortController, TypeError, setTimeout: () => 1, clearTimeout() {}});
+  const click = h.els.get('score-frames').listeners.click;
+  h.ctx.fetch = async () => { throw new TypeError('offline'); };
+  await click();
+  assert.match(h.els.get('score-result').textContent, /Local detector unavailable/);
+  assert.equal(h.els.get('score-frames').disabled, false);
+  h.ctx.fetch = async (url, options) => {
+    assert.equal(url, 'http://127.0.0.1:8767/v1/score');
+    assert.equal(JSON.parse(options.body).frames.length, 6);
+    return {ok:true, json:async () => ({signal:51,label:'Inconclusive',frames:[1,1,50,52,99,99]})};
+  };
+  await click(); assert.match(h.els.get('score-result').textContent, /Inconclusive · 51\/100/);
 });

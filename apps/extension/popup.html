@@ -27,11 +27,14 @@
       <h2>What Uncanny sees</h2>
       <div id="frames"></div>
       <p id="capture-note"></p>
+      <button id="score-frames" type="button">Score frames on this Mac</button>
+      <p id="score-result" role="status"></p>
       <button id="clear-frames" type="button">Clear frames</button>
     </section>
-    <p class="disclaimer">Frames stay in this popup and disappear when it closes. AI detection is not connected.</p>
+    <p class="disclaimer">Scoring processes six still images on this Mac. The signal describes the sample, not the whole video.</p>
   </main>
   <script src="capture.js"></script>
+  <script src="score.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

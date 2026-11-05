@@ -54,3 +54,6 @@ button.cancel { background: #1d2028; border-color: #444b5e; }
   .is-scanning .scan-beam { animation: none; left: 50%; }
   .activity i { animation: none; }
 }
+
+#score-frames { padding: 9px 14px; border: 0; border-radius: 8px; background: #325ae0; color: white; font: inherit; cursor: pointer; }
+#score-result { color: #eee; line-height: 1.45; }

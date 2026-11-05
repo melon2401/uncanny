@@ -1,12 +1,12 @@
 {
   "name": "uncanny",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "A browser extension exploring frame-based AI video detection.",
   "license": "MIT",
   "engines": { "node": ">=20" },
   "scripts": {
     "test": "node --test tests/capture.test.cjs",
-    "check": "node --check apps/extension/capture.js && node --check apps/extension/popup.js"
+    "check": "node --check apps/extension/capture.js && node --check apps/extension/popup.js && node --check apps/extension/score.js"
   }
 }

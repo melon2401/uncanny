@@ -3,9 +3,22 @@
 **Look twice.** A Chrome extension exploring frame-based AI-content detection
 for YouTube Shorts, Instagram Reels, and TikTok.
 
-> **Current milestone: frame capture.** Uncanny collects six video frames and
-> displays them for inspection. A detection model is not connected yet, and no
-> AI probability or authenticity verdict is produced.
+> **Current milestone: local frame scoring.** Uncanny can score six captured stills using the [corrected Community Forensics model](https://huggingface.co/buildborderless/CommunityForensics-DeepfakeDet-ViT/tree/ac6ee457bea904a373065754107451793b56db00). No hashtag or platform label is sent to the scorer.
+
+From the project root, run once (tested with Python 3.12):
+
+```sh
+python3.12 -m venv .venv
+.venv/bin/python -m pip install -r detector/requirements.txt
+```
+
+Start the detector before scoring:
+
+```sh
+.venv/bin/python detector/server.py
+```
+
+The first start downloads and verifies the model. Leave the terminal open. After capturing frames, click **Score frames on this Mac**. Images are processed in memory on localhost. The display shows the median of six still-image signals on a 0–100 scale. Mixed evidence, or fewer than three distinct center crops, gives an inconclusive result. These prototype thresholds are not calibrated on social videos. The model sees the center of each frame and does not analyze motion or audio.
 
 ## Try it locally
 
@@ -27,7 +40,7 @@ capture requires Chrome's extension APIs.
 - Six sequential frame samples with playback timestamps.
 - Direct video-pixel capture where allowed, with a cropped-tab fallback.
 - Cancellation, clearing frames, and checks for video or tab changes.
-- Local-only processing: no backend, uploads, credentials, or tracking.
+- Local-only processing: a loopback detector, no cloud scoring or tracking.
 - Automated tests and a local moving-video fixture.
 
 The user has confirmed seeing captured thumbnails in Chrome. This is an early
@@ -81,7 +94,7 @@ FRAME-CAPTURE.md      Capture implementation and limitations
 
 1. Verify direct and fallback capture across all three platforms.
 2. Evaluate candidate detection models on known real and synthetic videos.
-3. Build an analysis API and connect it with explicit upload consent.
+3. Compare frame scores against source-video ground truth.
 4. Calibrate results and allow an inconclusive outcome.
 
 See [the development roadmap](docs/ROADMAP.md). No accuracy claims are made
