@@ -1,10 +1,12 @@
 const scoreButton = document.getElementById('score-frames');
 const scoreResult = document.getElementById('score-result');
-let scoreBatch = [], pendingScore;
+let scoreBatch = [], pendingScore, lastResult = null;
 function setScoreFrames(frames) {
   pendingScore?.abort();
   pendingScore = null;
   scoreBatch = frames;
+  lastResult = null;
+  document.getElementById("save-sample").disabled = !frames.length;
   scoreButton.disabled = !frames.length;
   scoreButton.hidden = true;
   scoreResult.textContent = '';
@@ -23,11 +25,13 @@ async function scoreFrames() {
       body: JSON.stringify({frames: scoreBatch.map(f => f.data)}), signal: request.signal
     });
     if (!response.ok) throw new Error('Detector could not score these frames. Try capturing again.');
-    const {signal, label, frames} = await response.json();
+    const result = await response.json();
+    const {signal, label, frames} = result;
     if (pendingScore !== request) return;
+    lastResult = result;
     document.getElementById('headline').textContent = 'Analysis complete.';
     document.getElementById('status').textContent = 'Six frames checked on this Mac.';
-    scoreResult.textContent = label + ' · ' + signal + '/100' + (label === 'Inconclusive' ? ' — Not enough consistent evidence to classify this sample.' : ' — Signal across the sampled frames.');
+    scoreResult.textContent = label + ' · ' + signal + '/100' + (label === 'Inconclusive' ? (result.reason === 'conflicting_frames' ? ' — Frames disagree.' : result.reason === 'repeated_frames' ? ' — Too few distinct frames.' : ' — No reliable conclusion.') : ' — Signal across the sampled frames.');
     scoreBatch.forEach((frame, index) => {
       const caption = document.getElementById('frames').children[index]?.children[1];
       if (caption) caption.textContent = frame.time.toFixed(1) + 's · ' + frames[index] + '/100';
@@ -47,3 +51,14 @@ async function scoreFrames() {
   }
 }
 scoreButton.addEventListener('click', scoreFrames);
+
+document.getElementById('save-sample').addEventListener('click', () => {
+  if (!scoreBatch.length) return;
+  const source = new URL(targetTab.url); source.search = ''; source.hash = '';
+  const sample = {schema: 1, source: source.href, label: document.getElementById('known-label').value,
+    capturedAt: new Date().toISOString(), result: lastResult, frames: scoreBatch};
+  const url = URL.createObjectURL(new Blob([JSON.stringify(sample)], {type: 'application/json'}));
+  const link = document.createElement('a'); link.href = url;
+  link.download = 'uncanny-sample-' + Date.now() + '.json'; link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});

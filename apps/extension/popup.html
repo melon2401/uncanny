@@ -30,6 +30,10 @@
       <summary>View six captured frames</summary>
       <div id="frames"></div>
       <p id="capture-note"></p>
+      <label for="known-label">Known source (for testing)</label>
+      <select id="known-label"><option value="unknown">Unknown</option><option value="ai">Known AI</option><option value="real">Known real</option></select>
+      <button id="save-sample" type="button">Save test sample</button>
+      <p class="disclaimer">Saves frames and this video’s URL to a local JSON file. Nothing is uploaded.</p>
       </details>
       <button id="clear-frames" type="button">Clear frames</button>
     </section>

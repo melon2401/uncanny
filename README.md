@@ -109,3 +109,7 @@ analysis model.
 ## License
 
 [MIT](LICENSE).
+
+## Detection validation
+
+The original-author preprocessing is now used; the previous path remains available for comparison. This is not yet a demonstrated accuracy improvement. Use the optional **Save test sample** control to export exact labeled frames locally. See [evaluation instructions](detector/EVALUATION.md). Captures are excluded from Git.

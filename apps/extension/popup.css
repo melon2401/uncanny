@@ -84,3 +84,6 @@ summary:focus-visible { outline: 2px solid #e27640; outline-offset: 2px; }
 .context { flex-wrap: nowrap; gap: 8px; }
 .context-dot { flex-shrink: 0; }
 .preview-label { white-space: nowrap; letter-spacing: 1px; }
+#frame-details label { display: block; margin: 12px 0 6px; color: #b8c9ff; font-size: 12px; }
+#known-label { width: 100%; padding: 8px; border-radius: 6px; background: #191d28; color: #eee; border: 1px solid #444b5e; }
+#save-sample { margin-top: 8px; background: #1d2028; border-color: #444b5e; }
