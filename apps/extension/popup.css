@@ -2,8 +2,8 @@
 * { box-sizing: border-box; }
 /* Chrome sizes action popups from the document. Do not cap this with vw:
    the initial tiny viewport can otherwise constrain its own intrinsic width. */
-html { width: 400px; min-width: 400px; }
-body { margin: 0; width: 400px; min-width: 400px; }
+html { width: 340px; min-width: 340px; }
+body { margin: 0; width: 340px; min-width: 340px; }
 .popup { padding: 22px; }
 header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 21px; }
 .wordmark { font-size: 30px; font-weight: 850; letter-spacing: -1.7px; }
@@ -63,7 +63,7 @@ button.cancel { background: #1d2028; border-color: #444b5e; }
 
 /* Compact primary flow; inspection is optional. */
 [hidden] { display: none !important; }
-.popup { padding: 20px 24px; }
+.popup { padding: 18px 20px; }
 header { margin-bottom: 22px; flex-direction: column; align-items: flex-start; gap: 7px; }
 .tagline { white-space: nowrap; line-height: 1.4; }
 .heading-row { margin-top: 16px; gap: 12px; }
