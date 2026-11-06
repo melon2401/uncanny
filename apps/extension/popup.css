@@ -1,6 +1,9 @@
 :root { color-scheme: dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #f4f1eb; background: #101114; }
 * { box-sizing: border-box; }
-body { margin: 0; width: 380px; max-width: 100vw; }
+/* Chrome sizes action popups from the document. Do not cap this with vw:
+   the initial tiny viewport can otherwise constrain its own intrinsic width. */
+html { width: 400px; min-width: 400px; }
+body { margin: 0; width: 400px; min-width: 400px; }
 .popup { padding: 22px; }
 header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 21px; }
 .wordmark { font-size: 30px; font-weight: 850; letter-spacing: -1.7px; }
@@ -78,16 +81,6 @@ summary:focus-visible { outline: 2px solid #e27640; outline-offset: 2px; }
 .disclaimer { line-height: 1.5; margin-top: 12px; }
 #score-frames { margin-bottom: 12px; text-align: center; }
 
-/* Preserve breathing room when browser zoom narrows the CSS viewport. */
-.context { flex-wrap: wrap; row-gap: 6px; }
+.context { flex-wrap: nowrap; gap: 8px; }
+.context-dot { flex-shrink: 0; }
 .preview-label { white-space: nowrap; letter-spacing: 1px; }
-@media (max-width: 300px) {
-  .popup { padding: 16px; }
-  .wordmark { font-size: 26px; }
-  h1 { font-size: 19px; letter-spacing: -.4px; }
-  .preview-label { display: none; }
-  .scanner { height: 110px; }
-  .character { width: 66px; height: 99px; }
-  .scan-label { display: none; }
-  .heading-row { gap: 6px; }
-}
