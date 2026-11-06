@@ -27,7 +27,11 @@ async function scoreFrames() {
     if (pendingScore !== request) return;
     document.getElementById('headline').textContent = 'Analysis complete.';
     document.getElementById('status').textContent = 'Six frames checked on this Mac.';
-    scoreResult.textContent = label + ' · ' + signal + '/100 median frame signal. Frame scores in capture order: ' + frames.join(', ') + '. This is not a probability.';
+    scoreResult.textContent = label + ' · ' + signal + '/100' + (label === 'Inconclusive' ? ' — Not enough consistent evidence to classify this sample.' : ' — Signal across the sampled frames.');
+    scoreBatch.forEach((frame, index) => {
+      const caption = document.getElementById('frames').children[index]?.children[1];
+      if (caption) caption.textContent = frame.time.toFixed(1) + 's · ' + frames[index] + '/100';
+    });
   } catch (error) {
     if (pendingScore === request) {
       scoreButton.hidden = false;
