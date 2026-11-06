@@ -61,8 +61,10 @@ button.cancel { background: #1d2028; border-color: #444b5e; }
 /* Compact primary flow; inspection is optional. */
 [hidden] { display: none !important; }
 .popup { padding: 20px 24px; }
-header { margin-bottom: 16px; }
-.heading-row { margin-top: 16px; }
+header { margin-bottom: 22px; flex-direction: column; align-items: flex-start; gap: 7px; }
+.tagline { white-space: nowrap; line-height: 1.4; }
+.heading-row { margin-top: 16px; gap: 12px; }
+.activity { flex-shrink: 0; }
 h1 { font-size: 23px; }
 #status { margin: 8px 0 16px; }
 #analyze-button { text-align: center; min-height: 44px; }
@@ -75,3 +77,17 @@ summary:focus-visible { outline: 2px solid #e27640; outline-offset: 2px; }
 #clear-frames { background: transparent; border: none; padding: 7px 0; width: auto; color: #a4a8b4; font-size: 11px; }
 .disclaimer { line-height: 1.5; margin-top: 12px; }
 #score-frames { margin-bottom: 12px; text-align: center; }
+
+/* Preserve breathing room when browser zoom narrows the CSS viewport. */
+.context { flex-wrap: wrap; row-gap: 6px; }
+.preview-label { white-space: nowrap; letter-spacing: 1px; }
+@media (max-width: 300px) {
+  .popup { padding: 16px; }
+  .wordmark { font-size: 26px; }
+  h1 { font-size: 19px; letter-spacing: -.4px; }
+  .preview-label { display: none; }
+  .scanner { height: 110px; }
+  .character { width: 66px; height: 99px; }
+  .scan-label { display: none; }
+  .heading-row { gap: 6px; }
+}

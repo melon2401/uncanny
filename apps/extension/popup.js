@@ -80,10 +80,12 @@ async function capture() {
       frames.push(await readFrame(job));
     }
     checkCancelled(job); showFrames(frames);
-    headline.textContent = 'Checking the frames…';
-    status.textContent = 'Analyzing locally. Keep this popup open.';
+    headline.textContent = 'Analyzing…';
+    status.textContent = 'Keep this popup open while we check the frames.';
+    results.hidden = true;
     button.textContent = 'Analyzing…'; button.disabled = true;
     await scoreFrames();
+    results.hidden = false;
   } catch (error) {
     setScoreFrames([]); gallery.replaceChildren(); results.hidden = true;
     headline.textContent = job.cancelled ? 'Capture cancelled.' : 'Could not capture.';
