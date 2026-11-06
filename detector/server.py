@@ -35,7 +35,30 @@ def load_model():
     return session
 
 
-def analyze(session, frames):
+PIPELINE = 'commfor-original-preprocess-v1'
+
+
+def preprocess(im, pipeline=PIPELINE):
+    im = im.convert('RGB')
+    if pipeline == 'legacy':
+        rgb = ImageOps.fit(im, (440, 440), method=Image.Resampling.BICUBIC).crop((28, 28, 412, 412))
+        mean, std = [.48145466,.4578275,.40821073], [.26862954,.26130258,.27577711]
+    elif pipeline == PIPELINE:
+        # Match authors' torchvision Resize(440), CenterCrop(384), ImageNet Normalize.
+        w, h = im.size
+        size = (440, int(440 * h / w)) if w <= h else (int(440 * w / h), 440)
+        resized = im.resize(size, Image.Resampling.BILINEAR)
+        left, top = round((size[0] - 384) / 2), round((size[1] - 384) / 2)
+        rgb = resized.crop((left, top, left + 384, top + 384))
+        mean, std = [.485,.456,.406], [.229,.224,.225]
+    else:
+        raise ValueError('Unknown pipeline')
+    arr = np.asarray(rgb, dtype=np.float32) / 255
+    arr = (arr - np.array(mean, np.float32)) / np.array(std, np.float32)
+    return arr.transpose(2, 0, 1)[None], hashlib.sha256(rgb.tobytes()).digest()
+
+
+def analyze(session, frames, pipeline=PIPELINE):
     if not isinstance(frames, list) or len(frames) != 6:
         raise ValueError('Expected six frames.')
     scores, unique = [], set()
@@ -46,12 +69,9 @@ def analyze(session, frames):
         with Image.open(io.BytesIO(base64.b64decode(frame[len(prefix):], validate=True)), formats=['JPEG']) as im:
             if max(im.size) > 720:
                 raise ValueError('Frame exceeds 720 pixels.')
-            # Fit samples the same central region as resize-shortest-to-440 then crop-to-384.
-            rgb = ImageOps.fit(im.convert('RGB'), (440, 440), method=Image.Resampling.BICUBIC).crop((28, 28, 412, 412))
-            unique.add(hashlib.sha256(rgb.tobytes()).digest())
-            arr = np.asarray(rgb, dtype=np.float32) / 255
-        arr = (arr - np.array([.48145466,.4578275,.40821073], np.float32)) / np.array([.26862954,.26130258,.27577711], np.float32)
-        logit = float(session.run(None, {'pixel_values': arr.transpose(2,0,1)[None]})[0].item())
+            arr, fingerprint = preprocess(im, pipeline)
+            unique.add(fingerprint)
+        logit = float(session.run(None, {'pixel_values': arr})[0].item())
         if not math.isfinite(logit):
             raise RuntimeError('Nonfinite detector output.')
         scores.append(100 / (1 + math.exp(-max(-80, min(80, logit)))))
@@ -61,7 +81,10 @@ def analyze(session, frames):
             label = 'Strong synthetic signal'
         elif sum(s <= 20 for s in scores) >= 5 and max(scores) < 80:
             label = 'Weak synthetic signal'
-    return dict(signal=round(statistics.median(scores)), label=label, frames=[round(s) for s in scores])
+    reason = ('repeated_frames' if len(unique) < 3 else
+              'conflicting_frames' if min(scores) <= 20 and max(scores) >= 80 else
+              'threshold_not_met' if label == 'Inconclusive' else 'consistent_frames')
+    return dict(pipeline=pipeline, model_sha256=SHA, reason=reason, raw_frames=scores, signal=round(statistics.median(scores)), label=label, frames=[round(s) for s in scores])
 
 
 class Handler(BaseHTTPRequestHandler):
