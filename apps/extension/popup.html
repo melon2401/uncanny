@@ -9,7 +9,7 @@
 <body>
   <main class="popup">
     <header><div class="wordmark">uncanny<span>®</span></div><span class="tagline">LOOK TWICE.</span></header>
-    <div class="context"><span class="context-dot"></span><span id="platform-name">Checking page…</span><span class="preview-label">FRAME CAPTURE</span></div>
+    <div class="context"><span class="context-dot"></span><span id="platform-name">Checking page…</span><span class="preview-label">LOCAL ANALYSIS</span></div>
     <section id="scanner" class="scanner" aria-label="Human-to-robot character scanning animation">
       <span class="corner top-left"></span><span class="corner top-right"></span>
       <span class="corner bottom-left"></span><span class="corner bottom-right"></span>
@@ -22,16 +22,18 @@
     </section>
     <div class="heading-row"><h1 id="headline">A second look.</h1><span id="activity" class="activity" aria-hidden="true"><i></i><i></i><i></i></span></div>
     <p id="status" role="status">Play a video to capture six frames.</p>
-    <button id="analyze-button" type="button" disabled>Capture frames</button>
+    <button id="analyze-button" type="button" disabled>Analyze video</button>
     <section id="capture-results" hidden aria-label="Captured video frames">
-      <h2>What Uncanny sees</h2>
+      <p id="score-result" role="status"></p>
+      <button id="score-frames" type="button" hidden>Retry analysis</button>
+      <details id="frame-details">
+      <summary>View six captured frames</summary>
       <div id="frames"></div>
       <p id="capture-note"></p>
-      <button id="score-frames" type="button">Score frames on this Mac</button>
-      <p id="score-result" role="status"></p>
+      </details>
       <button id="clear-frames" type="button">Clear frames</button>
     </section>
-    <p class="disclaimer">Scoring processes six still images on this Mac. The signal describes the sample, not the whole video.</p>
+    <p class="disclaimer">Analyze captures and checks six frames on this Mac. The signal describes the sample, not the whole video.</p>
   </main>
   <script src="capture.js"></script>
   <script src="score.js"></script>

@@ -6,13 +6,15 @@ function setScoreFrames(frames) {
   pendingScore = null;
   scoreBatch = frames;
   scoreButton.disabled = !frames.length;
+  scoreButton.hidden = true;
   scoreResult.textContent = '';
 }
-scoreButton.addEventListener('click', async () => {
+async function scoreFrames() {
   if (!scoreBatch.length || pendingScore) return;
   const request = new AbortController();
   pendingScore = request;
   scoreButton.disabled = true;
+  scoreButton.hidden = true;
   scoreResult.textContent = 'Reading the six frames on this Mac…';
   const timeout = setTimeout(() => request.abort(), 45000);
   try {
@@ -23,13 +25,21 @@ scoreButton.addEventListener('click', async () => {
     if (!response.ok) throw new Error('Detector could not score these frames. Try capturing again.');
     const {signal, label, frames} = await response.json();
     if (pendingScore !== request) return;
+    document.getElementById('headline').textContent = 'Analysis complete.';
+    document.getElementById('status').textContent = 'Six frames checked on this Mac.';
     scoreResult.textContent = label + ' · ' + signal + '/100 median frame signal. Frame scores in capture order: ' + frames.join(', ') + '. This is not a probability.';
   } catch (error) {
-    if (pendingScore === request) scoreResult.textContent = error instanceof TypeError || request.signal.aborted
+    if (pendingScore === request) {
+      scoreButton.hidden = false;
+      scoreButton.textContent = 'Retry analysis';
+      document.getElementById('headline').textContent = 'Frames saved. Try again.';
+      scoreResult.textContent = error instanceof TypeError || request.signal.aborted
       ? 'Local detector unavailable or timed out. Start detector/server.py on this Mac, then retry.'
       : error.message;
+    }
   } finally {
     clearTimeout(timeout);
     if (pendingScore === request) { pendingScore = null; scoreButton.disabled = false; }
   }
-});
+}
+scoreButton.addEventListener('click', scoreFrames);

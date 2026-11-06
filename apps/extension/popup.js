@@ -67,6 +67,7 @@ function showFrames(frames) {
 }
 async function capture() {
   const job = { id: crypto.randomUUID(), cancelled: false }; activeJob = job;
+  document.getElementById('frame-details').open = false;
   setScoreFrames([]); gallery.replaceChildren(); results.hidden = true;
   scanner.classList.add('is-scanning'); activity.classList.add('active'); button.classList.add('cancel');
   button.textContent = 'Cancel capture'; headline.textContent = 'Looking closer…';
@@ -79,8 +80,10 @@ async function capture() {
       frames.push(await readFrame(job));
     }
     checkCancelled(job); showFrames(frames);
-    headline.textContent = 'Six frames captured.';
-    status.textContent = 'Check the thumbnails below. Nothing has been uploaded or scored.';
+    headline.textContent = 'Checking the frames…';
+    status.textContent = 'Analyzing locally. Keep this popup open.';
+    button.textContent = 'Analyzing…'; button.disabled = true;
+    await scoreFrames();
   } catch (error) {
     setScoreFrames([]); gallery.replaceChildren(); results.hidden = true;
     headline.textContent = job.cancelled ? 'Capture cancelled.' : 'Could not capture.';
@@ -88,7 +91,7 @@ async function capture() {
   } finally {
     activeJob = null;
     scanner.classList.remove('is-scanning'); activity.classList.remove('active'); button.classList.remove('cancel');
-    button.textContent = 'Capture frames'; button.disabled = false;
+    button.textContent = 'Analyze video'; button.disabled = false;
   }
 }
 button.addEventListener('click', () => {

@@ -18,7 +18,7 @@ Start the detector before scoring:
 .venv/bin/python detector/server.py
 ```
 
-The first start downloads and verifies the model. Leave the terminal open. After capturing frames, click **Score frames on this Mac**. Images are processed in memory on localhost. The display shows the median of six still-image signals on a 0–100 scale. Mixed evidence, or fewer than three distinct center crops, gives an inconclusive result. These prototype thresholds are not calibrated on social videos. The model sees the center of each frame and does not analyze motion or audio.
+The first start downloads and verifies the model. Leave the terminal open. Click **Analyze video** to capture and score automatically. Expand **View six captured frames** only when you want to inspect the sample. Images are processed in memory on localhost. The display shows the median of six still-image signals on a 0–100 scale. Mixed evidence, or fewer than three distinct center crops, gives an inconclusive result. These prototype thresholds are not calibrated on social videos. The model sees the center of each frame and does not analyze motion or audio.
 
 ## Try it locally
 
@@ -26,9 +26,9 @@ The first start downloads and verifies the model. Leave the terminal open. After
 2. Open `chrome://extensions` in Chrome and enable **Developer mode**.
 3. Select **Load unpacked**, then choose `apps/extension` inside this repository.
 4. Play a Short, Reel, or TikTok and open Uncanny from the extensions menu.
-5. Click **Capture frames**. Keep the popup open and stay on that video for
+5. Click **Analyze video**. Keep the popup open and stay on that video for
    approximately 6–10 seconds.
-6. Scroll down inside the popup to inspect six timestamped thumbnails.
+6. Read the result, or expand **View six captured frames** for timestamped thumbnails.
 
 After editing extension files, reload Uncanny on `chrome://extensions`.
 Opening `popup.html` as a normal webpage only previews the interface;

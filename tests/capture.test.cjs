@@ -59,7 +59,8 @@ function popupHarness({ cancel = false, switchTab = false } = {}) {
   let samples = 0;
   const tab = { id: 7, windowId: 1, url };
   const ctx = vm.createContext({ console, URL, crypto: { randomUUID: () => 'job' }, document: doc, window: { addEventListener() {} },
-    setTimeout: resolve => { if (cancel) els.get('analyze-button').listeners.click(); resolve(); },
+    AbortController, clearTimeout() {}, fetch: async () => ({ok:true,json:async () => ({signal:5,label:'Inconclusive',frames:[1,2,3,7,8,9]})}),
+    setTimeout: (resolve, ms) => { if (ms === 45000) return 1; if (cancel) els.get('analyze-button').listeners.click(); resolve(); },
     chrome: { tabs: { query: async () => [{ ...tab, id: switchTab && samples ? 8 : 7 }] }, scripting: { executeScript: async () => [{ result: { time: ++samples, data: 'data:image/jpeg;base64,frame', method: 'Video pixels' } }] } } });
   vm.runInContext(source, ctx);
   vm.runInContext(fs.readFileSync(path.join(root, 'score.js'), 'utf8'), ctx);
@@ -69,7 +70,7 @@ function popupHarness({ cancel = false, switchTab = false } = {}) {
 test('capture flow renders exactly six timestamped frames and clear removes them', async () => {
   const h = popupHarness(); await h.ctx.initialize(); await h.ctx.capture();
   assert.equal(h.samples(), 6); assert.equal(h.els.get('frames').children.length, 6);
-  assert.equal(h.els.get('headline').textContent, 'Six frames captured.');
+  assert.equal(h.els.get('headline').textContent, 'Analysis complete.');
   h.els.get('clear-frames').listeners.click(); assert.equal(h.els.get('frames').children.length, 0);
 });
 test('cancellation discards partial frames and restores controls', async () => {
