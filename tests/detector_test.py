@@ -42,6 +42,20 @@ class DetectorTests(unittest.TestCase):
 
 
 class EvaluationTests(unittest.TestCase):
+    def test_unknown_samples_do_not_become_accuracy_evidence(self):
+        import tempfile, json
+        from pathlib import Path
+        from unittest.mock import patch
+        from detector.evaluate import evaluate
+        with tempfile.TemporaryDirectory() as folder:
+            Path(folder, 'sample.json').write_text(json.dumps(dict(schema=1, source='https://example.com/1', label='unknown', frames=[dict(data='fixture')]*6)))
+            with patch('detector.evaluate.load_model'), patch('detector.evaluate.analyze', return_value={'label':'Strong synthetic signal'}):
+                r = evaluate(folder)['legacy']
+                self.assertEqual(r['unknown_videos'], 1)
+                self.assertEqual(len(r['details']), 1)
+                self.assertIsNone(r['ai_detection_rate'])
+                self.assertIsNone(r['false_positive_rate'])
+
     def test_repeated_sources_count_once_and_conflicting_labels_fail(self):
         import tempfile, json
         from pathlib import Path

@@ -66,3 +66,8 @@ unvalidated models or take maximum frame scores just to increase AI detections.
   unusual movement, missing blinks or a watermark with a measured AI probability.
 - [AIBotOrNot](https://www.aibotornot.com/) did not expose enough implementation
   details in the retrieved page to substantiate its detector or accuracy.
+
+Unknown-labeled samples are replayed and listed separately as `unknown_videos`.
+They never enter false-positive or AI-detection rates. Missing labeled classes
+produce null rates rather than invented zeros. Inspect the report's details
+before making any performance claim.
