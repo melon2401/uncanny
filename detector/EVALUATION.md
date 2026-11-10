@@ -119,3 +119,14 @@ Decision: do not replace the live detector yet. The promising AI-example result
 does not establish generalization, and the real-photo false alarm needs further
 investigation. Next comparison needs known-real videos and additional independently
 verified AI sources, with held-out examples. No claimed production accuracy.
+
+### First user-confirmed real video
+
+On the second exported source video (user label: real), the current and legacy
+pipelines both returned rounded frame signals [0, 0, 0, 0, 0, 0] and weak synthetic
+signal. SigLIP returned [0.21, 2.63, 99.89, 99.90, 84.08, 99.79], median 91.94.
+The existing five-of-six rule abstained, so this is not a final strong-signal
+false positive, but four high frame scores and a high median on real video are
+a material failure for using its numeric score as a reliable indicator.
+Only two user-labeled source videos have been tested. Candidate remains offline;
+do not promote it or combine models by taking the maximum.
