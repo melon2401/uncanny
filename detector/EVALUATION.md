@@ -71,3 +71,17 @@ Unknown-labeled samples are replayed and listed separately as `unknown_videos`.
 They never enter false-positive or AI-detection rates. Missing labeled classes
 produce null rates rather than invented zeros. Inspect the report's details
 before making any performance claim.
+
+## Offline region sensitivity
+
+Run ` .venv/bin/python detector/inspect_regions.py captures/<sample>.json `
+to compare the existing full-image preprocessing with five fixed 65%-size square
+crops. This is a diagnostic only; it does not alter live scores. Crop medians are
+not calibrated or validated as a classification rule. A higher maximum crop score
+is not evidence of better detection.
+
+On the first user-confirmed AI export, legacy preprocessing abstained at 63 and
+author preprocessing abstained at 42. The five-region median diagnostic fell to
+16. This is one missed source video, not a population accuracy estimate. No
+known-real exported videos were available for a false-positive comparison. The
+regional variant was not promoted into the extension.
