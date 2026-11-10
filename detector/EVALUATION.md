@@ -85,3 +85,37 @@ author preprocessing abstained at 42. The five-region median diagnostic fell to
 16. This is one missed source video, not a population accuracy estimate. No
 known-real exported videos were available for a false-positive comparison. The
 regional variant was not promoted into the extension.
+
+## Second model: pinned SigLIP candidate
+
+Offline comparison only; not enabled in the extension:
+
+```sh
+python detector/compare_siglip.py captures/uncanny-sample-*.json --output captures/siglip-comparison.txt
+```
+
+Use a separate Python environment with `torch==2.11.0`,
+`transformers==5.12.1`, and Pillow. These are the versions used for this run.
+Weights are downloaded to ignored `.models/huggingface`. The script loads only
+safetensors, pins the revision, disables remote code and never sends frames out.
+
+Candidate: [Ateeqq/ai-vs-human-image-detector](https://huggingface.co/Ateeqq/ai-vs-human-image-detector/tree/60e82406916921b823616bee33397baab38af3f0)
+(Apache-2.0; revision 60e82406916921b823616bee33397baab38af3f0).
+Use the model's image processor and class mapping: AI is index 0.
+The model card reports user concerns about overfitting.
+
+Observed on the one user-confirmed AI video: all six frames scored
+99.86–99.92, median 99.91. The fixed existing decision rule gives strong
+synthetic signal. The current detector abstains at 42 on the same sample.
+
+Real-image sanity controls (skimage bundled photos, resized to max edge 720 and
+JPEG quality 90): astronaut 85.83, camera 0.02, chelsea 0.05, coffee 0.10,
+rocket 0.81. The astronaut is a high-scoring real image: a false-positive concern.
+Each control repeated the same photo six times, so the duplicate-frame guard
+abstained; these are five still images, NOT five real videos. Controls are kept
+in a separate subdirectory and excluded from the video evaluation folder.
+
+Decision: do not replace the live detector yet. The promising AI-example result
+does not establish generalization, and the real-photo false alarm needs further
+investigation. Next comparison needs known-real videos and additional independently
+verified AI sources, with held-out examples. No claimed production accuracy.
