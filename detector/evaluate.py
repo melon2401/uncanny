@@ -8,15 +8,16 @@ try:
 except ImportError:
     from server import analyze, load_model, PIPELINE
 
-def evaluate(folder):
+def evaluate(folder, sample_paths=None, source_groups=None):
     groups = defaultdict(list)
-    for path in sorted(Path(folder).glob('*.json')):
+    for path in sorted(sample_paths if sample_paths is not None else Path(folder).glob('*.json')):
         data = json.loads(path.read_text())
         if data.get('schema') != 1 or data.get('label') not in ('ai', 'real', 'unknown'):
             continue
         if not data.get('source'):
             raise ValueError(f'{path.name}: missing video source')
-        groups[data['source']].append(data)
+        group = source_groups[str(path)] if source_groups is not None else data['source']
+        groups[group].append(data)
     if not groups:
         raise ValueError('No samples found. Export a test sample first.')
     session = load_model()
