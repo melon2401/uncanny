@@ -48,15 +48,30 @@ The unused cv2 import was stubbed during this math-only comparison; neither
 image embedding nor video decoding was exercised. This proves scoring parity
 on those inputs, not end-to-end detection quality.
 
-Blocked dependency: official DINOv3 weights returned HTTP 401 without approved
-access. No weights gate was bypassed. Access via Meta/Hugging Face requires the
-user's license acceptance. The current offline adapter expects the original
-.pth checkpoint and original DINOv3 source; Hugging Face safetensors are NOT
-directly interchangeable with that CLI. If only HF format is available, its
-feature-extraction path still needs implementation and verification.
+## Approved Hugging Face path
 
-No STALL score is exposed in the live extension. End-to-end inference, runtime,
-model-feature parity and real/AI validation remain outstanding.
+DINOv3 access was approved and the official Hugging Face weights downloaded locally
+at revision `ea8dc2863c51be0a264bab82070e3e8836b02d51` into ignored
+`.models/dinov3-hf`. The adapter now accepts `--hf-model .models/dinov3-hf`
+instead of `--dino-repo` / `--weights`. Loading is local-only. It retains STALL's
+224x224 tensor resize and ImageNet normalization, and uses the model's normalized
+CLS output (`pooler_output`), not patch averaging or unit-length normalization.
+
+Local smoke check: one previously captured frame produced a finite (1,1024)
+feature vector; pooler output equaled the normalized sequence's CLS token.
+Repeating that embedding sixteen times correctly abstained as static footage.
+CPU model load plus one-frame processing took 2.71 seconds in this single run;
+this is not a full-clip latency benchmark. Python tests: 27 passed.
+
+This does not establish numerical parity with Meta's original implementation,
+calibration compatibility in practice, or accuracy. No valid motion exports were
+available for evaluation. No STALL score is exposed in the live extension yet.
+
+Example (from repository root, using the Python environment with torch):
+
+```sh
+HF_HUB_OFFLINE=1 /opt/anaconda3/bin/python3 detector/compare_stall.py captures/MOTION.json --hf-model .models/dinov3-hf --output captures/stall-result.json
+```
 
 ## Motion export preflight
 
