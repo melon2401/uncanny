@@ -30,3 +30,26 @@ model weights or credentials are included in this report.
 Next evaluation: validate feature compatibility, benchmark an accelerated local
 path, and evaluate a more varied set of independently labeled motion sequences
 before selecting thresholds. Reserve fresh videos for confirmation after selection.
+
+## Local GPU experiment
+
+Added explicit `--device mps --batch-size 4` to the offline adapter. CPU remains
+the default, and unavailable MPS fails clearly rather than silently changing paths.
+No precision reduction was used. macOS MPS was accessible outside the execution
+sandbox; its unavailability within the sandbox did not reflect hardware support.
+
+| Sample | CPU, batch 1 | MPS, batch 4 |
+| --- | ---: | ---: |
+| Real (first) | 46.07 s | 10.00 s |
+| AI (second) | 42.70 s | 3.11 s |
+
+Spatial percentile, temporal percentile and final reference score matched exactly
+between these runs for both samples. This verifies score consistency for this pair,
+not equality of all intermediate embeddings or all future samples. The first MPS
+run includes cold initialization; second-run warm caches may contribute to the
+speed difference. These are single measurements, not a latency distribution.
+
+Run with the same motion-export CLI plus `--device mps --batch-size 4` on a
+supported Mac. Processing remains offline. All 27 existing Python tests pass;
+the two actual model runs exercise the new device and batching path. The live
+extension still uses its existing detector pending broader accuracy validation.
