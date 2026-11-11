@@ -1,5 +1,5 @@
 // Each call samples one frame in an isolated extension world, not the site's scripts.
-function sampleVideo(session, expectedUrl) {
+function sampleVideo(session, expectedUrl, motion = false) {
   if (location.href !== expectedUrl) throw new Error('The page changed. Reopen Uncanny on the video you want.');
   const candidates = [...document.querySelectorAll('video')].map(video => {
     const r = video.getBoundingClientRect(), style = getComputedStyle(video);
@@ -16,6 +16,8 @@ function sampleVideo(session, expectedUrl) {
   if (old?.session === session && (old.video !== video || old.source !== source)) throw new Error('The video changed. Stay on one video and try again.');
   if (video.paused || video.ended) throw new Error('The video is paused. Press play, then capture again.');
   if (old?.session === session && Math.abs(video.currentTime - old.time) < 0.08) throw new Error('Playback has stalled. Let the video load, then try again.');
+  if (motion && old?.session === session && (video.currentTime <= old.time || video.currentTime - old.time > 0.5)) throw new Error('Playback jumped or looped. Restart the motion test on one continuous section.');
+  if (motion && video.playbackRate !== 1) throw new Error('Use normal playback speed for a motion test.');
   globalThis.__uncannyFrameSession = { session, video, source, time: video.currentTime };
   const frame = { time: video.currentTime, source, page: location.href, viewport: { width: innerWidth, height: innerHeight }, element: { left: r.left, top: r.top, width: r.width, height: r.height } };
   // Prefer clean video pixels, without page captions and controls.

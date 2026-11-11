@@ -1,10 +1,11 @@
 const scoreButton = document.getElementById('score-frames');
 const scoreResult = document.getElementById('score-result');
-let scoreBatch = [], pendingScore, lastResult = null;
-function setScoreFrames(frames) {
+let scoreBatch = [], pendingScore, lastResult = null, captureMode = 'stills';
+function setScoreFrames(frames, mode = 'stills') {
   pendingScore?.abort();
   pendingScore = null;
   scoreBatch = frames;
+  captureMode = mode;
   lastResult = null;
   document.getElementById("save-sample").disabled = !frames.length;
   scoreButton.disabled = !frames.length;
@@ -12,7 +13,7 @@ function setScoreFrames(frames) {
   scoreResult.textContent = '';
 }
 async function scoreFrames() {
-  if (!scoreBatch.length || pendingScore) return;
+  if (captureMode === 'motion' || !scoreBatch.length || pendingScore) return;
   const request = new AbortController();
   pendingScore = request;
   scoreButton.disabled = true;
@@ -55,10 +56,10 @@ scoreButton.addEventListener('click', scoreFrames);
 document.getElementById('save-sample').addEventListener('click', () => {
   if (!scoreBatch.length) return;
   const source = new URL(targetTab.url); source.search = ''; source.hash = '';
-  const sample = {schema: 1, source: source.href, label: document.getElementById('known-label').value,
+  const sample = {schema: captureMode === 'motion' ? 2 : 1, mode: captureMode, targetIntervalMs: captureMode === 'motion' ? 125 : 1100, source: source.href, label: document.getElementById('known-label').value,
     capturedAt: new Date().toISOString(), result: lastResult, frames: scoreBatch};
   const url = URL.createObjectURL(new Blob([JSON.stringify(sample)], {type: 'application/json'}));
   const link = document.createElement('a'); link.href = url;
-  link.download = 'uncanny-sample-' + Date.now() + '.json'; link.click();
+  link.download = (captureMode === 'motion' ? 'uncanny-motion-' : 'uncanny-sample-') + Date.now() + '.json'; link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 });

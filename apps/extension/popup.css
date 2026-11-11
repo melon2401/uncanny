@@ -87,3 +87,6 @@ summary:focus-visible { outline: 2px solid #e27640; outline-offset: 2px; }
 #frame-details label { display: block; margin: 12px 0 6px; color: #b8c9ff; font-size: 12px; }
 #known-label { width: 100%; padding: 8px; border-radius: 6px; background: #191d28; color: #eee; border: 1px solid #444b5e; }
 #save-sample { margin-top: 8px; background: #1d2028; border-color: #444b5e; }
+#capture-options { margin-top: 8px; }
+#capture-options summary { font-size: 11px; color: #a4a8b4; padding: 6px 0; }
+#capture-options button { margin-top: 8px; background: #1d2028; border-color: #444b5e; }

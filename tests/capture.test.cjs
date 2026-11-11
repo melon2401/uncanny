@@ -99,3 +99,28 @@ test('local score uses captured pixels and lets the user retry after an offline 
   };
   await click(); assert.match(h.els.get('score-result').textContent, /Inconclusive · 51\/100/);
 });
+test('motion capture accepts continuous playback and rejects loops, jumps and speed changes', () => {
+  const f=fixture();f.video.playbackRate=1;
+  const sample=()=>f.context.sampleVideo('motion-job',url,true);
+  sample();f.video.currentTime+=.25;assert.ok(sample().data);
+  f.video.currentTime=.1;assert.throws(sample,/jumped or looped/);
+  f.video.currentTime=2;assert.throws(sample,/jumped or looped/);
+  f.video.currentTime=1.5;f.video.playbackRate=2;assert.throws(sample,/normal playback speed/);
+});
+test('motion capture produces sixteen frames without calling the image detector', async () => {
+  const h=popupHarness();await h.ctx.initialize();
+  let called=false;h.ctx.fetch=async()=>{called=true;throw Error('Unexpected scoring');};
+  await h.ctx.capture('motion');
+  assert.equal(h.samples(),16);assert.equal(called,false);
+  assert.equal(h.els.get('frames').children.length,16);
+  assert.equal(h.els.get('headline').textContent,'Motion sample ready.');
+  assert.match(h.els.get('score-result').textContent,/no video-model verdict/);
+  assert.equal(h.els.get('capture-motion').disabled,false);
+});
+test('motion mode refuses screenshot fallback without capturing the tab', async () => {
+  const h=popupHarness();await h.ctx.initialize();
+  h.ctx.chrome.scripting.executeScript=async()=>[{result:{time:1,method:'Visible video crop'}}];
+  await h.ctx.capture('motion');
+  assert.equal(h.els.get('frames').children.length,0);
+  assert.match(h.els.get('status').textContent,/blocks direct frame capture/);
+});

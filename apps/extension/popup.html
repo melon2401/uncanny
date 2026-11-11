@@ -23,11 +23,16 @@
     <div class="heading-row"><h1 id="headline">A second look.</h1><span id="activity" class="activity" aria-hidden="true"><i></i><i></i><i></i></span></div>
     <p id="status" role="status">Play a video to capture six frames.</p>
     <button id="analyze-button" type="button" disabled>Analyze video</button>
+    <details id="capture-options">
+      <summary>Motion test · experimental</summary>
+      <p class="disclaimer">Collects 16 closely spaced frames for video-model testing. No motion detection score yet.</p>
+      <button id="capture-motion" type="button" disabled>Capture motion sample</button>
+    </details>
     <section id="capture-results" hidden aria-label="Captured video frames">
       <p id="score-result" role="status"></p>
       <button id="score-frames" type="button" hidden>Retry analysis</button>
       <details id="frame-details">
-      <summary>View six captured frames</summary>
+      <summary id="frames-summary">View six captured frames</summary>
       <div id="frames"></div>
       <p id="capture-note"></p>
       <label for="known-label">Known source (for testing)</label>

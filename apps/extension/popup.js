@@ -19,11 +19,12 @@ async function assertSameTab(job) {
 }
 async function readFrame(job) {
   await assertSameTab(job);
-  const [reply] = await chrome.scripting.executeScript({ target: { tabId: targetTab.id }, func: sampleVideo, args: [job.id, targetTab.url] });
+  const [reply] = await chrome.scripting.executeScript({ target: { tabId: targetTab.id }, func: sampleVideo, args: [job.id, targetTab.url, job.mode === 'motion'] });
   checkCancelled(job);
   if (!reply?.result) throw new Error('Could not read the video. Reload the page and try again.');
   const frame = reply.result;
   if (frame.data) return frame;
+  if (job.mode === 'motion') throw new Error('This player blocks direct frame capture. Motion testing needs video pixels; screenshot capture is too slow.');
   await assertSameTab(job);
   const screenshot = await chrome.tabs.captureVisibleTab(targetTab.windowId, { format: 'png' });
   await assertSameTab(job);
@@ -51,7 +52,7 @@ async function readFrame(job) {
   frame.data = canvas.toDataURL('image/jpeg', 0.9);
   return frame;
 }
-function showFrames(frames) {
+function showFrames(frames, mode = 'stills') {
   gallery.replaceChildren();
   frames.forEach((frame, index) => {
     const figure = document.createElement('figure'), img = document.createElement('img'), caption = document.createElement('figcaption');
@@ -62,24 +63,34 @@ function showFrames(frames) {
   document.getElementById('capture-note').textContent = frames.some(f => f.method === 'Visible video crop')
     ? 'Captured from the visible player. In-player text or controls may appear.'
     : 'Captured directly from the video pixels.';
-  setScoreFrames(frames);
+  setScoreFrames(frames, mode);
+  document.getElementById('frames-summary').textContent = 'View ' + frames.length + ' captured frames';
   results.hidden = false;
 }
-async function capture() {
-  const job = { id: crypto.randomUUID(), cancelled: false }; activeJob = job;
+async function capture(mode = 'stills') {
+  const motion = mode === 'motion';
+  const count = motion ? 16 : 6;
+  document.getElementById('capture-motion').disabled = true;
+  const job = { id: crypto.randomUUID(), cancelled: false, mode }; activeJob = job;
   document.getElementById('frame-details').open = false;
   setScoreFrames([]); gallery.replaceChildren(); results.hidden = true;
   scanner.classList.add('is-scanning'); activity.classList.add('active'); button.classList.add('cancel');
   button.textContent = 'Cancel capture'; headline.textContent = 'Looking closer…';
   const frames = [];
   try {
-    for (let i = 0; i < 6; i++) {
-      if (i) await new Promise(resolve => setTimeout(resolve, 1100));
+    for (let i = 0; i < count; i++) {
+      if (i) await new Promise(resolve => setTimeout(resolve, motion ? 125 : 1100));
       checkCancelled(job);
-      status.textContent = `Capturing frame ${i + 1} of 6. Keep this popup open and the video playing.`;
+      status.textContent = `Capturing frame ${i + 1} of ${count}. Keep this popup open and the video playing.`;
       frames.push(await readFrame(job));
     }
-    checkCancelled(job); showFrames(frames);
+    checkCancelled(job); showFrames(frames, mode);
+    if (motion) {
+      headline.textContent = 'Motion sample ready.';
+      status.textContent = '16 frames saved in memory. Expand below to label and save this test sample.';
+      document.getElementById('score-result').textContent = 'Motion capture only — no video-model verdict yet.';
+      return;
+    }
     headline.textContent = 'Analyzing…';
     status.textContent = 'Keep this popup open while we check the frames.';
     results.hidden = true;
@@ -94,8 +105,10 @@ async function capture() {
     activeJob = null;
     scanner.classList.remove('is-scanning'); activity.classList.remove('active'); button.classList.remove('cancel');
     button.textContent = 'Analyze video'; button.disabled = false;
+    document.getElementById('capture-motion').disabled = false;
   }
 }
+document.getElementById('capture-motion').addEventListener('click', () => { if (!activeJob) capture('motion'); });
 button.addEventListener('click', () => {
   if (activeJob) { activeJob.cancelled = true; button.disabled = true; button.textContent = 'Cancelling…'; }
   else capture();
@@ -118,6 +131,7 @@ async function initialize() {
     platformName.textContent = platform || 'Unsupported page';
     status.textContent = platform ? 'Play the video. Keep this popup open and stay on the same video while capturing.' : 'Open YouTube Shorts, Instagram or TikTok in this browser.';
     button.disabled = !platform;
+    document.getElementById('capture-motion').disabled = !platform;
   } catch {
     platformName.textContent = 'Page unavailable'; status.textContent = 'Reload the extension, then reopen it on the video.';
   }
