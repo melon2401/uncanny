@@ -182,3 +182,31 @@ attribution class. Reports include individual scores, median, and count above 90
 they are not a claim of video accuracy or calibration. Malformed results fail closed.
 Docs: https://docs.thehive.ai/reference/authentication and
 https://docs.thehive.ai/reference/ai-generated-image-and-video-detection-1
+
+## UniversalFakeDetect research baseline
+
+Free local research comparison:
+[original implementation](https://github.com/WisconsinAIVision/UniversalFakeDetect/tree/030495aea3300a8b54c0ec37ec7fe1dd7e63c619).
+The comparison script loads the authors' linear classifier with `weights_only=True`
+and verifies its SHA-256, using a pinned OpenAI CLIP ViT-L/14 vision backbone.
+Preprocessing follows original evaluation: center-crop 224 without resizing,
+then CLIP normalization. Projected image features are not L2-normalized before
+the classifier. Only vision weights are used from the joint CLIP checkpoint;
+unused text weights in the loader report are expected. Numerical parity with
+the authors' bundled CLIP implementation has not yet been independently tested.
+
+Run with the same Torch/Transformers environment used by the candidate comparisons:
+
+```sh
+python detector/compare_univfd.py captures/uncanny-sample-*.json --output captures/univfd-comparison.txt
+```
+
+The approximately 1.7 GB backbone download is cached outside Git. It has no
+per-request fee and no image uploads. This older detector is an additional baseline,
+not a promise of generalization to current generators.
+
+Observed results (0–100 sigmoid signal): known-AI video median 0.0194,
+known-real video median 0.00214, real astronaut control 0.00474.
+This baseline misses the AI case. It is not promoted into the live extension.
+Do not lower a threshold to fit these two videos; use independent labeled
+development and held-out sources before calibration or fine-tuning.
