@@ -153,3 +153,32 @@ on the real video. Reject this candidate for promotion. Two source videos are
 insufficient for general accuracy estimates, but one clear counterexample is
 enough to reject a claim that this candidate fixes both observed problems.
 Live detector unchanged. No external frame uploads were performed.
+
+## Hive comparison (requires account access)
+
+`compare_hive.py` implements the documented V2 project API, not the V3 Playground.
+No live Hive call has been made yet; parser tests use fabricated responses.
+A V2 AI-generated image/video detection project key is required. A general Hive
+login, Hive Detect subscription, or a V3 Playground key is not interchangeable.
+
+The user authorized an external comparison of the two saved samples. The script
+requires an explicit `--allow-upload` flag on future runs; no extension integration
+has been added. Six individual JPEGs per sample go to api.thehive.ai. Labels, social
+URLs and entire videos are not submitted. API charges may apply to 12 new requests.
+
+Set HIVE_API_KEY in the executing terminal (never source control or chat), then:
+
+```sh
+.venv/bin/python detector/compare_hive.py captures/uncanny-sample-*.json --output captures/hive-report.txt --allow-upload
+```
+
+The adjacent cache saves successful frame scores for the same project key and image.
+Timeouts are not retried automatically: a timed-out request may still have incurred
+a charge. Inspect account usage before rerunning. Cache is local and not a guarantee
+of request idempotency. Reuse a report path only for the same experiment/model version.
+
+The parser reads only `ai_generated`, never substitutes `deepfake` or a generator
+attribution class. Reports include individual scores, median, and count above 90;
+they are not a claim of video accuracy or calibration. Malformed results fail closed.
+Docs: https://docs.thehive.ai/reference/authentication and
+https://docs.thehive.ai/reference/ai-generated-image-and-video-detection-1
