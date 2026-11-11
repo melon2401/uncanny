@@ -25,3 +25,35 @@ Completion gate for the next milestone: reproduce authors' reference scoring,
 evaluate valid sequences from known real and AI videos, measure latency and false
 flags, and document outcomes before considering a live model replacement.
 No accuracy promise follows from collecting denser frames.
+
+## Implemented STALL adapter (2026-11-11)
+
+- `detector/stall_score.py`: spatial/temporal whitening, Gaussian likelihood,
+  max-spatial/min-temporal aggregation, calibration percentiles and correct
+  higher-is-real score direction.
+- `detector/compare_stall.py`: offline motion-export adapter using the original
+  DINOv3 ViT-L/16 backbone and original transform.
+- Timing validation rejects loops, old six-frame exports, screenshot capture
+  and captures too far from 8 FPS. This is a conservative engineering gate,
+  not a guarantee of paper-identical sampling.
+- Fully static embeddings abstain instead of producing a misleading high score.
+- License/attribution in `detector/licenses/STALL.txt` (CC-BY-NC-4.0).
+  This experimental module is not covered by the repository's MIT license.
+
+Verified against pinned upstream scoring code at
+f6dbb617a08d522f42ac02341028da8c58e669d1, with published VATEX calibration:
+three synthetic embedding sequences matched spatial percentile, temporal percentile
+and final score within 1e-12 (one sequence included equal adjacent embeddings).
+The unused cv2 import was stubbed during this math-only comparison; neither
+image embedding nor video decoding was exercised. This proves scoring parity
+on those inputs, not end-to-end detection quality.
+
+Blocked dependency: official DINOv3 weights returned HTTP 401 without approved
+access. No weights gate was bypassed. Access via Meta/Hugging Face requires the
+user's license acceptance. The current offline adapter expects the original
+.pth checkpoint and original DINOv3 source; Hugging Face safetensors are NOT
+directly interchangeable with that CLI. If only HF format is available, its
+feature-extraction path still needs implementation and verification.
+
+No STALL score is exposed in the live extension. End-to-end inference, runtime,
+model-feature parity and real/AI validation remain outstanding.

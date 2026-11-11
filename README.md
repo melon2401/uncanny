@@ -117,3 +117,8 @@ The original-author preprocessing is now used; the previous path remains availab
 ## Easier local startup
 
 After initial setup, double-click `Start-Uncanny.command` in Finder and leave its Terminal window open. It starts the same free local detector; it does not enable cloud services. Detection remains experimental.
+
+Experimental STALL-derived files in `detector/stall_score.py` and
+`detector/compare_stall.py` are attributed separately under CC-BY-NC-4.0;
+see `detector/licenses/STALL.txt` and `docs/MOTION-NEXT.md`. They are not yet
+enabled in the extension.
