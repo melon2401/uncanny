@@ -113,3 +113,7 @@ analysis model.
 ## Detection validation
 
 The original-author preprocessing is now used; the previous path remains available for comparison. This is not yet a demonstrated accuracy improvement. Use the optional **Save test sample** control to export exact labeled frames locally. See [evaluation instructions](detector/EVALUATION.md). Captures are excluded from Git.
+
+## Easier local startup
+
+After initial setup, double-click `Start-Uncanny.command` in Finder and leave its Terminal window open. It starts the same free local detector; it does not enable cloud services. Detection remains experimental.
