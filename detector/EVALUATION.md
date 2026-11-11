@@ -130,3 +130,26 @@ false positive, but four high frame scores and a high median on real video are
 a material failure for using its numeric score as a reliable indicator.
 Only two user-labeled source videos have been tested. Candidate remains offline;
 do not promote it or combine models by taking the maximum.
+
+## Third model: SDXL/Swin comparison
+
+Offline, noncommercial evaluation only:
+[Organika/sdxl-detector](https://huggingface.co/Organika/sdxl-detector/tree/b37fede8562cb72b89ec201c0987f96ba21b518a),
+revision b37fede8562cb72b89ec201c0987f96ba21b518a. Model card: CC-BY-NC-3.0;
+trained on Wikimedia/SDXL pairs, with acknowledged generator-dependent performance.
+Weights remain outside Git and are not included in Uncanny's runtime.
+
+Run the same harness with `--candidate sdxl`; the default remains `siglip`.
+The processor and positive label are model-specific and loaded from the pinned
+configuration. Both comparisons use the same six-frame decision rule.
+
+| User-labeled source | Current median | SigLIP median | SDXL median |
+| --- | ---: | ---: | ---: |
+| Known AI | 42 | 99.91 | 99.59 |
+| Known real | 0 | 91.94 | 99.99 |
+
+SDXL returns strong synthetic signal on BOTH samples: a final false positive
+on the real video. Reject this candidate for promotion. Two source videos are
+insufficient for general accuracy estimates, but one clear counterexample is
+enough to reject a claim that this candidate fixes both observed problems.
+Live detector unchanged. No external frame uploads were performed.

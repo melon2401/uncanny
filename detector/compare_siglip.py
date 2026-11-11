@@ -13,11 +13,18 @@ MODEL = 'Ateeqq/ai-vs-human-image-detector'
 REVISION = '60e82406916921b823616bee33397baab38af3f0'
 
 
-def compare(paths):
+CANDIDATES = {
+    'siglip': (MODEL, REVISION, 'ai'),
+    'sdxl': ('Organika/sdxl-detector', 'b37fede8562cb72b89ec201c0987f96ba21b518a', 'artificial'),
+}
+
+
+def compare(paths, candidate='siglip'):
+    model_id, revision, positive_label = CANDIDATES[candidate]
     cache = Path(__file__).resolve().parents[1] / '.models' / 'huggingface'
-    processor = AutoImageProcessor.from_pretrained(MODEL, revision=REVISION, cache_dir=cache, trust_remote_code=False)
-    model = AutoModelForImageClassification.from_pretrained(MODEL, revision=REVISION, cache_dir=cache, trust_remote_code=False, use_safetensors=True).eval()
-    ai_index = model.config.label2id['ai']
+    processor = AutoImageProcessor.from_pretrained(model_id, revision=revision, cache_dir=cache, trust_remote_code=False)
+    model = AutoModelForImageClassification.from_pretrained(model_id, revision=revision, cache_dir=cache, trust_remote_code=False, use_safetensors=True).eval()
+    ai_index = model.config.label2id[positive_label]
     results = []
     for path in paths:
         sample = json.loads(Path(path).read_text())
@@ -39,14 +46,15 @@ def compare(paths):
         results.append(dict(file=Path(path).name, known_label=sample.get('label', 'unknown'),
                             signal=round(statistics.median(scores), 2),
                             frames=[round(s, 2) for s in scores], verdict=verdict))
-    return dict(model=MODEL, revision=REVISION, experimental=True, results=results)
+    return dict(model=model_id, revision=revision, experimental=True, results=results)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('samples', nargs='+')
     parser.add_argument('--output', required=True)
+    parser.add_argument('--candidate', choices=CANDIDATES, default='siglip')
     args = parser.parse_args()
-    result = compare(args.samples)
+    result = compare(args.samples, args.candidate)
     Path(args.output).write_text(json.dumps(result, indent=2))
     print(json.dumps(result, indent=2))
