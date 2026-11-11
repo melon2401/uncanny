@@ -19,7 +19,7 @@ Next named experiment: [STALL](https://github.com/OmerBenHayun/STALL), which use
 DINOv3 embeddings with spatial and temporal statistics and published real-video
 calibration. Its paper-style setup is 8 FPS / two seconds. Score direction is
 higher = more real, not more AI. Its weights/access requirements, sampling mismatch
-and local runtime must be resolved before integration. No STALL score is implemented.
+and local runtime must be resolved before integration. Offline STALL scoring is implemented below; it is not enabled in the extension.
 
 Completion gate for the next milestone: reproduce authors' reference scoring,
 evaluate valid sequences from known real and AI videos, measure latency and false
@@ -57,3 +57,16 @@ feature-extraction path still needs implementation and verification.
 
 No STALL score is exposed in the live extension. End-to-end inference, runtime,
 model-feature parity and real/AI validation remain outstanding.
+
+## Motion export preflight
+
+Run `.venv/bin/python detector/audit_motion.py <export.json> [more exports...]`
+before embedding extraction. It checks capture cadence, known labels, readable
+JPEGs, consistent dimensions, repeated decoded pixels and duplicate sequences
+within the batch. Output contains filenames and diagnostics, not imagery or source
+URLs. Store reports under ignored `captures/`.
+
+Repeated pixels conservatively mark a capture for inspection, not as synthetic.
+Passing checks does not verify labels, detect scene cuts, establish independent
+source videos, or prove model accuracy. No network or model weights are needed.
+The original six-frame exports cannot substitute for dense motion sequences.
