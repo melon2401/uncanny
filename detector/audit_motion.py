@@ -6,11 +6,23 @@ import io
 import json
 from pathlib import Path
 
+import numpy as np
 from PIL import Image
 try:
     from .stall_score import validate_motion
 except ImportError:
     from stall_score import validate_motion
+
+
+def find_cuts(gray_frames, ratio=3.0, floor=40.0):
+    """Flag adjacent pairs whose mean pixel change dwarfs the clip's typical motion.
+
+    Heuristic chosen by visual inspection of ten development captures; it is a
+    prompt to inspect, not a validated shot-boundary detector.
+    """
+    diffs = [float(np.abs(a - b).mean()) for a, b in zip(gray_frames, gray_frames[1:])]
+    typical = float(np.median(diffs)) if diffs else 0.0
+    return [i for i, d in enumerate(diffs) if d > floor and d > ratio * typical]
 
 
 def audit_sample(sample):
@@ -24,6 +36,7 @@ def audit_sample(sample):
         issues.append('A known AI or known real label is required for evaluation')
     hashes = []
     sizes = set()
+    grays = []
     try:
         for frame in sample['frames']:
             prefix, encoded = frame['data'].split(',', 1)
@@ -33,15 +46,20 @@ def audit_sample(sample):
                 image = image.convert('RGB')
                 sizes.add(image.size)
                 hashes.append(hashlib.sha256(str(image.size).encode() + image.tobytes()).hexdigest())
+                grays.append(np.asarray(image.convert('L'), dtype=np.float32))
     except (ValueError, KeyError, TypeError, OSError) as error:
         return {'ready': False, 'issues': ['Invalid frame image: ' + str(error)]}
     if len(sizes) != 1:
         issues.append('Frame dimensions changed within the capture')
     if len(set(hashes)) < len(hashes):
         issues.append('Repeated decoded frames: inspect for paused or frozen footage')
+    cuts = find_cuts(grays) if len(sizes) == 1 else []
+    if cuts:
+        issues.append('Possible scene cut after frame(s) ' + ', '.join(map(str, cuts)) +
+                      ': STALL assumes one continuous shot; inspect before scoring')
     return {'ready': not issues, 'label': label, 'issues': issues,
             'duration_seconds': round(float(times[-1] - times[0]), 4),
-            'distinct_frames': len(set(hashes)),
+            'distinct_frames': len(set(hashes)), 'cut_after_frames': cuts,
             'sequence_hash': hashlib.sha256(''.join(hashes).encode()).hexdigest()}
 
 
