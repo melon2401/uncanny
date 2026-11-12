@@ -85,3 +85,20 @@ Repeated pixels conservatively mark a capture for inspection, not as synthetic.
 Passing checks does not verify labels, detect scene cuts, establish independent
 source videos, or prove model accuracy. No network or model weights are needed.
 The original six-frame exports cannot substitute for dense motion sequences.
+
+## Pending: original-backbone parity (2026-11-11)
+
+Not yet run. The original Meta ViT-L/16 checkpoint is not on disk; only the
+source code (`.models/dinov3-source`, commit 6876159) is. Download it through
+Meta's form at https://ai.meta.com/resources/models-and-libraries/dinov3-downloads/
+and keep the original filename, because the loader reads the `-8aa4cbdd.pth`
+hash from it. Then score the same captures with both backends and compare:
+
+```sh
+HF_HUB_OFFLINE=1 /opt/anaconda3/bin/python3 detector/compare_stall.py captures/<motion>.json \
+  --dino-repo .models/dinov3-source --weights .models/dinov3_vitl16_pretrain_lvd1689m-8aa4cbdd.pth \
+  --device mps --batch-size 4 --output captures/<motion>-original.json
+```
+
+This compares final scores only, not embeddings. See `STALL-CUTS-2026-11-11.md`
+for why scene cuts should be excluded before interpreting either backend.
