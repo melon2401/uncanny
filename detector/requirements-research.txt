@@ -1,0 +1,10 @@
+# Offline research scripts only (compare_*.py, STALL). The live detector
+# needs only requirements.txt. Exact versions used on 2026-11-11 were not
+# recorded; pin them with:
+#   /opt/anaconda3/bin/python3 -m pip freeze | grep -iE '^(torch|torchvision|transformers|safetensors)='
+-r requirements.txt
+torch
+torchvision
+# DINOv3 support in transformers starts at 4.56.
+transformers>=4.56
+safetensors
