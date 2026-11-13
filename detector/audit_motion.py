@@ -25,14 +25,14 @@ def find_cuts(gray_frames, ratio=3.0, floor=40.0):
     return [i for i, d in enumerate(diffs) if d > floor and d > ratio * typical]
 
 
-def audit_sample(sample):
+def audit_sample(sample, require_label=True):
     issues = []
     try:
         times = validate_motion(sample)
     except (ValueError, KeyError, TypeError) as error:
         return {'ready': False, 'issues': [str(error)]}
     label = sample.get('label', 'unknown')
-    if label not in ('ai', 'real'):
+    if require_label and label not in ('ai', 'real'):
         issues.append('A known AI or known real label is required for evaluation')
     hashes = []
     sizes = set()
@@ -43,6 +43,8 @@ def audit_sample(sample):
             if prefix != 'data:image/jpeg;base64':
                 raise ValueError('Expected JPEG data URL')
             with Image.open(io.BytesIO(base64.b64decode(encoded, validate=True))) as image:
+                if max(image.size) > 720:
+                    raise ValueError('Frame exceeds 720 pixels')
                 image = image.convert('RGB')
                 sizes.add(image.size)
                 hashes.append(hashlib.sha256(str(image.size).encode() + image.tobytes()).hexdigest())

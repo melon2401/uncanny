@@ -1,4 +1,5 @@
 """Offline motion adapter. Requires approved, locally downloaded DINOv3 weights (original or Hugging Face)."""
+from functools import lru_cache
 import argparse
 import base64
 import hashlib
@@ -17,15 +18,8 @@ except ImportError:
 
 CALIB_SHA='beede546ca4385242c2a26075b8087ab51bee709549fc4ddc79d0eef5acce240'
 
-def compare(sample_path, repo, weights, calibration, hf_model=None, device="cpu", batch_size=1):
-    if device not in ('cpu', 'mps') or not 1 <= batch_size <= 16:
-        raise ValueError('Use cpu or mps and batch size between 1 and 16')
-    if device == 'mps' and not torch.backends.mps.is_available():
-        raise ValueError('MPS acceleration is unavailable in this environment')
-    sample=json.loads(Path(sample_path).read_text())
-    validate_motion(sample)
-    if hashlib.sha256(Path(calibration).read_bytes()).hexdigest()!=CALIB_SHA:
-        raise ValueError('Calibration checksum mismatch')
+@lru_cache(maxsize=1)
+def load_embedder(repo, weights, hf_model, device):
     if hf_model:
         from transformers import AutoModel
         model=AutoModel.from_pretrained(hf_model,local_files_only=True).eval()
@@ -42,6 +36,18 @@ def compare(sample_path, repo, weights, calibration, hf_model=None, device="cpu"
         model=dinov3_vitl16(weights=str(Path(weights).resolve())).eval()
         embed=model
     model.to(device)
+    return embed
+
+def compare(sample_path, repo, weights, calibration, hf_model=None, device="cpu", batch_size=1):
+    if device not in ('cpu', 'mps') or not 1 <= batch_size <= 16:
+        raise ValueError('Use cpu or mps and batch size between 1 and 16')
+    if device == 'mps' and not torch.backends.mps.is_available():
+        raise ValueError('MPS acceleration is unavailable in this environment')
+    sample=sample_path if isinstance(sample_path,dict) else json.loads(Path(sample_path).read_text())
+    validate_motion(sample)
+    if hashlib.sha256(Path(calibration).read_bytes()).hexdigest()!=CALIB_SHA:
+        raise ValueError('Calibration checksum mismatch')
+    embed=load_embedder(repo,weights,hf_model,device)
     transform=transforms.Compose([transforms.ToTensor(),
         transforms.Resize((224,224),antialias=True),
         transforms.Normalize((.485,.456,.406),(.229,.224,.225))])

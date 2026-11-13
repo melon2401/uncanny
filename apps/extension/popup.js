@@ -86,9 +86,10 @@ async function capture(mode = 'stills') {
     }
     checkCancelled(job); showFrames(frames, mode);
     if (motion) {
-      headline.textContent = 'Motion sample ready.';
+      headline.textContent = 'Checking motion…';
       status.textContent = '16 frames saved in memory. Expand below to label and save this test sample.';
-      document.getElementById('score-result').textContent = 'Motion capture only — no video-model verdict yet.';
+      button.disabled = true;
+      await scoreMotion();
       return;
     }
     headline.textContent = 'Analyzing…';

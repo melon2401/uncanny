@@ -102,3 +102,20 @@ HF_HUB_OFFLINE=1 /opt/anaconda3/bin/python3 detector/compare_stall.py captures/<
 
 This compares final scores only, not embeddings. See `STALL-CUTS-2026-11-11.md`
 for why scene cuts should be excluded before interpreting either backend.
+
+## Opt-in extension experiment (2026-11-12)
+
+`Start-Motion-Experiment.command` starts a separate loopback service on port 8768,
+using a cached DINOv3 model and MPS when available. The existing still-image service
+on 8767 is unchanged. The extension's expandable Motion test now captures and
+requests an experimental signal automatically. No AI/real threshold is applied.
+
+Requests stay in memory, undergo timing/image/duplicate/cut checks, and do not need
+a ground-truth label. Captures with screening issues return inconclusive before
+inference. Screening is heuristic, not a reliable animation or scene-cut detector.
+The low-scoring animation remains a non-AI failure case; screening does not solve
+animation generalization. The interface warns that animation and edits may mislead.
+
+If the service is unavailable, captured frames remain exportable. Closing or clearing
+the popup aborts its request; already-started model computation can finish locally.
+Use Reload in chrome://extensions after updating installed extension files.

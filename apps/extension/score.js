@@ -63,3 +63,36 @@ document.getElementById('save-sample').addEventListener('click', () => {
   link.download = (captureMode === 'motion' ? 'uncanny-motion-' : 'uncanny-sample-') + Date.now() + '.json'; link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 });
+
+
+async function scoreMotion() {
+  if (captureMode !== 'motion' || scoreBatch.length !== 16) return;
+  const request = new AbortController();
+  pendingScore = request;
+  const timeout = setTimeout(() => request.abort(), 120000);
+  scoreResult.textContent = 'Checking motion locally…';
+  try {
+    const response = await fetch('http://127.0.0.1:8768/v1/motion', {
+      method: 'POST', headers: {'Content-Type': 'application/json', 'X-Uncanny-Client': 'popup'},
+      body: JSON.stringify({schema: 2, mode: 'motion', frames: scoreBatch}), signal: request.signal
+    });
+    if (!response.ok) throw new Error('Motion service could not process this capture.');
+    const result = await response.json();
+    if (pendingScore !== request) return;
+    lastResult = result;
+    document.getElementById('headline').textContent = 'Motion check complete.';
+    document.getElementById('status').textContent = 'Experimental result — no AI/real verdict.';
+    scoreResult.textContent = result.status === 'inconclusive'
+      ? 'Inconclusive — ' + (result.issues || [result.reason || 'Insufficient motion evidence']).join('. ')
+      : 'Real-reference signal: ' + Number(result.real_reference_score).toFixed(3) +
+        ' (higher is more real-like, not a probability). ' + result.notice;
+  } catch (error) {
+    if (pendingScore !== request) return;
+    document.getElementById('headline').textContent = 'Motion capture saved.';
+    document.getElementById('status').textContent = 'You can still save these frames for testing.';
+    scoreResult.textContent = 'Motion analysis unavailable or timed out. Open Start-Motion-Experiment.command, then capture again.';
+  } finally {
+    clearTimeout(timeout);
+    if (pendingScore === request) pendingScore = null;
+  }
+}

@@ -60,7 +60,7 @@ function popupHarness({ cancel = false, switchTab = false } = {}) {
   const tab = { id: 7, windowId: 1, url };
   const ctx = vm.createContext({ console, URL, crypto: { randomUUID: () => 'job' }, document: doc, window: { addEventListener() {} },
     AbortController, clearTimeout() {}, fetch: async () => ({ok:true,json:async () => ({signal:5,label:'Inconclusive',frames:[1,2,3,7,8,9]})}),
-    setTimeout: (resolve, ms) => { if (ms === 45000) return 1; if (cancel) els.get('analyze-button').listeners.click(); resolve(); },
+    setTimeout: (resolve, ms) => { if (ms === 45000 || ms === 120000) return 1; if (cancel) els.get('analyze-button').listeners.click(); resolve(); },
     chrome: { tabs: { query: async () => [{ ...tab, id: switchTab && samples ? 8 : 7 }] }, scripting: { executeScript: async () => [{ result: { time: ++samples, data: 'data:image/jpeg;base64,frame', method: 'Video pixels' } }] } } });
   vm.runInContext(source, ctx);
   vm.runInContext(fs.readFileSync(path.join(root, 'score.js'), 'utf8'), ctx);
@@ -107,15 +107,27 @@ test('motion capture accepts continuous playback and rejects loops, jumps and sp
   f.video.currentTime=2;assert.throws(sample,/jumped or looped/);
   f.video.currentTime=1.5;f.video.playbackRate=2;assert.throws(sample,/normal playback speed/);
 });
-test('motion capture produces sixteen frames without calling the image detector', async () => {
+test('motion capture sends sixteen frames only to experimental motion service', async () => {
   const h=popupHarness();await h.ctx.initialize();
-  let called=false;h.ctx.fetch=async()=>{called=true;throw Error('Unexpected scoring');};
+  let called=0;h.ctx.fetch=async(endpoint, options)=>{
+    called++; assert.equal(endpoint,'http://127.0.0.1:8768/v1/motion');
+    const body=JSON.parse(options.body);assert.equal(body.frames.length,16);assert.equal(body.mode,'motion');
+    return {ok:true,json:async()=>({status:'experimental',real_reference_score:.12,notice:'No reliable verdict.'})};
+  };
   await h.ctx.capture('motion');
-  assert.equal(h.samples(),16);assert.equal(called,false);
+  assert.equal(h.samples(),16);assert.equal(called,1);
   assert.equal(h.els.get('frames').children.length,16);
-  assert.equal(h.els.get('headline').textContent,'Motion sample ready.');
-  assert.match(h.els.get('score-result').textContent,/no video-model verdict/);
+  assert.equal(h.els.get('headline').textContent,'Motion check complete.');
+  assert.match(h.els.get('score-result').textContent,/not a probability/);
   assert.equal(h.els.get('capture-motion').disabled,false);
+});
+test('unavailable motion service preserves frames for export', async () => {
+  const h=popupHarness();await h.ctx.initialize();
+  h.ctx.fetch=async()=>{throw new TypeError('offline');};
+  await h.ctx.capture('motion');
+  assert.equal(h.els.get('frames').children.length,16);
+  assert.equal(h.els.get('save-sample').disabled,false);
+  assert.match(h.els.get('score-result').textContent,/Start-Motion-Experiment/);
 });
 test('motion mode refuses screenshot fallback without capturing the tab', async () => {
   const h=popupHarness();await h.ctx.initialize();
