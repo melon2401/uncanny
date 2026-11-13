@@ -2,10 +2,13 @@
 
 Chrome MV3 extension (`apps/extension`, plain JS, no build) that samples frames
 from YouTube Shorts, Instagram Reels and TikTok, plus a loopback-only Python
-detector (`detector/server.py`, port 8767). Development moved here from OpenAI
-Codex on 2026-11-11; the repo docs are the only record of earlier decisions.
+detector (`detector/server.py`, port 8767). The user is moving development from Codex to Claude. Read
+`docs/PROJECT-HANDOFF.md` for the curated conversation context, product preferences,
+evaluation history and next steps; it is not a full chat transcript.
 
 ## Read first
+
+- `docs/PROJECT-HANDOFF.md`: conversation context and priority order.
 
 - `README.md`, `docs/ROADMAP.md`: product scope and status.
 - `detector/EVALUATION.md`, `docs/BENCHMARK-2026-11-11.md`: still-image
