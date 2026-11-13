@@ -122,3 +122,14 @@ Experimental STALL-derived files in `detector/stall_score.py` and
 `detector/compare_stall.py` are attributed separately under CC-BY-NC-4.0;
 see `detector/licenses/STALL.txt` and `docs/MOTION-NEXT.md`. They are not yet
 enabled in the extension.
+
+### One launcher for local analysis
+
+Double-click `Start-Uncanny.command` to start both the image and experimental motion
+services. Keep its Terminal window open. It reuses healthy services, reports startup
+failures, and stops only services it started when interrupted. The research Python
+at `/opt/anaconda3/bin/python3` and approved local DINOv3 weights are needed for motion.
+
+The extension checks readiness before capturing; if offline, it tells you to start
+the launcher instead of collecting frames and timing out. Reload the extension
+following an update. Motion results remain experimental, not AI/real probabilities.

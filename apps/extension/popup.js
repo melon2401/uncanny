@@ -67,7 +67,30 @@ function showFrames(frames, mode = 'stills') {
   document.getElementById('frames-summary').textContent = 'View ' + frames.length + ' captured frames';
   results.hidden = false;
 }
+async function detectorReady(mode) {
+  const request = new AbortController();
+  const timer = setTimeout(() => request.abort(), 2500);
+  try {
+    const port = mode === 'motion' ? 8768 : 8767;
+    const response = await fetch(`http://127.0.0.1:${port}/health`, {signal: request.signal});
+    const health = await response.json();
+    return response.ok && health.app === 'uncanny' && health.service === mode && health.ready === true;
+  } catch { return false; }
+  finally { clearTimeout(timer); }
+}
+
 async function capture(mode = 'stills') {
+  button.disabled = true;
+  document.getElementById('capture-motion').disabled = true;
+  status.textContent = 'Checking local detector…';
+  if (!await detectorReady(mode)) {
+    headline.textContent = 'Start Uncanny first.';
+    status.textContent = 'Double-click Start-Uncanny.command in your project folder. When it says ready, try again.';
+    button.disabled = false;
+    document.getElementById('capture-motion').disabled = false;
+    return;
+  }
+
   const motion = mode === 'motion';
   const count = motion ? 16 : 6;
   document.getElementById('capture-motion').disabled = true;
@@ -75,7 +98,7 @@ async function capture(mode = 'stills') {
   document.getElementById('frame-details').open = false;
   setScoreFrames([]); gallery.replaceChildren(); results.hidden = true;
   scanner.classList.add('is-scanning'); activity.classList.add('active'); button.classList.add('cancel');
-  button.textContent = 'Cancel capture'; headline.textContent = 'Looking closer…';
+  button.disabled = false; button.textContent = 'Cancel capture'; headline.textContent = 'Looking closer…';
   const frames = [];
   try {
     for (let i = 0; i < count; i++) {

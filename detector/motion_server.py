@@ -23,6 +23,13 @@ def analyze_motion(sample, infer):
 
 
 class Handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        try:
+            from .health import respond
+        except ImportError:
+            from health import respond
+        return respond(self, 8768, 'motion')
+
     def setup(self):
         super().setup()
         self.connection.settimeout(20)

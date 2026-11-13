@@ -88,6 +88,13 @@ def analyze(session, frames, pipeline=PIPELINE):
 
 
 class Handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        try:
+            from .health import respond
+        except ImportError:
+            from health import respond
+        return respond(self, 8767, 'stills')
+
     def setup(self):
         super().setup()
         self.connection.settimeout(20)

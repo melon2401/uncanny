@@ -65,6 +65,7 @@ function popupHarness({ cancel = false, switchTab = false } = {}) {
   vm.runInContext(source, ctx);
   vm.runInContext(fs.readFileSync(path.join(root, 'score.js'), 'utf8'), ctx);
   vm.runInContext(fs.readFileSync(path.join(root, 'popup.js'), 'utf8'), ctx);
+  ctx.detectorReady = async () => true;
   return { ctx, els, samples: () => samples };
 }
 test('capture flow renders exactly six timestamped frames and clear removes them', async () => {
@@ -127,7 +128,7 @@ test('unavailable motion service preserves frames for export', async () => {
   await h.ctx.capture('motion');
   assert.equal(h.els.get('frames').children.length,16);
   assert.equal(h.els.get('save-sample').disabled,false);
-  assert.match(h.els.get('score-result').textContent,/Start-Motion-Experiment/);
+  assert.match(h.els.get('score-result').textContent,/Start-Uncanny/);
 });
 test('motion mode refuses screenshot fallback without capturing the tab', async () => {
   const h=popupHarness();await h.ctx.initialize();
@@ -135,4 +136,13 @@ test('motion mode refuses screenshot fallback without capturing the tab', async 
   await h.ctx.capture('motion');
   assert.equal(h.els.get('frames').children.length,0);
   assert.match(h.els.get('status').textContent,/blocks direct frame capture/);
+});
+
+test('offline detector stops before capturing and explains recovery', async () => {
+ const h=popupHarness(); await h.ctx.initialize();
+ h.ctx.detectorReady=async()=>false;
+ await h.ctx.capture('motion');
+ assert.equal(h.samples(),0);
+ assert.equal(h.els.get('headline').textContent,'Start Uncanny first.');
+ assert.equal(h.els.get('capture-motion').disabled,false);
 });

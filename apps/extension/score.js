@@ -43,7 +43,7 @@ async function scoreFrames() {
       scoreButton.textContent = 'Retry analysis';
       document.getElementById('headline').textContent = 'Frames saved. Try again.';
       scoreResult.textContent = error instanceof TypeError || request.signal.aborted
-      ? 'Local detector unavailable or timed out. Start detector/server.py on this Mac, then retry.'
+      ? 'Local detector unavailable or timed out. Open Start-Uncanny.command on this Mac, then retry.'
       : error.message;
     }
   } finally {
@@ -90,7 +90,7 @@ async function scoreMotion() {
     if (pendingScore !== request) return;
     document.getElementById('headline').textContent = 'Motion capture saved.';
     document.getElementById('status').textContent = 'You can still save these frames for testing.';
-    scoreResult.textContent = 'Motion analysis unavailable or timed out. Open Start-Motion-Experiment.command, then capture again.';
+    scoreResult.textContent = 'Motion analysis unavailable or timed out. Open Start-Uncanny.command, then capture again.';
   } finally {
     clearTimeout(timeout);
     if (pendingScore === request) pendingScore = null;
