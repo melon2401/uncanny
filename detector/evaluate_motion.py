@@ -6,9 +6,9 @@ import time
 from collections import Counter, defaultdict
 from pathlib import Path
 try:
-    from .audit_motion import audit_sample
+    from .motion_window import select_window
 except ImportError:
-    from audit_motion import audit_sample
+    from motion_window import select_window
 
 
 def summarize(rows):
@@ -33,13 +33,13 @@ def evaluate(paths, infer):
     for path in paths:
         try:
             sample = json.loads(Path(path).read_text())
-            audit = audit_sample(sample, require_label=False)
+            window, audit, start = select_window(sample)
             row = dict(id=f'sample-{len(rows)+1}', label=sample.get('label', 'unknown'),
                        status='excluded', issues=audit['issues'])
             rows.append(row)
             digest = audit.get('sequence_hash')
             if digest:
-                groups[digest].append((row, sample, audit))
+                groups[digest].append((row, window or sample, audit))
         except (ValueError, OSError, KeyError, TypeError, AttributeError):
             rows.append(dict(id=f'sample-{len(rows)+1}', label='unknown', status='excluded', issues=['Unreadable export']))
     sources = Counter()

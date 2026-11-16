@@ -4,9 +4,9 @@ import re
 from pathlib import Path
 from http.server import BaseHTTPRequestHandler, HTTPServer
 try:
-    from .audit_motion import audit_sample
+    from .motion_window import select_window
 except ImportError:
-    from audit_motion import audit_sample
+    from motion_window import select_window
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -14,11 +14,12 @@ ROOT = Path(__file__).resolve().parents[1]
 def analyze_motion(sample, infer):
     if not isinstance(sample, dict):
         raise ValueError('Expected a motion sample')
-    audit = audit_sample(sample, require_label=False)
+    window, audit, start = select_window(sample)
     if not audit['ready']:
         return {'status': 'inconclusive', 'issues': audit['issues']}
-    result = infer(sample)
+    result = infer(window)
     return {**result,
+            'window': {'start_frame': start, 'end_frame': start+15, 'start_seconds': window['frames'][0]['time'], 'end_seconds': window['frames'][-1]['time'], 'captured_frames': len(sample['frames'])},
             'notice': 'Research signal only. Animation and edited footage may score poorly. No reliable AI/real verdict.'}
 
 
@@ -46,7 +47,7 @@ class Handler(BaseHTTPRequestHandler):
             return self.send_error(415)
         try:
             size = int(self.headers.get('Content-Length', 0))
-            if not 0 < size <= 12_000_000:
+            if not 0 < size <= 24_000_000:
                 return self.send_error(413)
             sample = json.loads(self.rfile.read(size))
             result = analyze_motion(sample, self.server.infer)

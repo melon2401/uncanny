@@ -119,3 +119,31 @@ animation generalization. The interface warns that animation and edits may misle
 If the service is unavailable, captured frames remain exportable. Closing or clearing
 the popup aborts its request; already-started model computation can finish locally.
 Use Reload in chrome://extensions after updating installed extension files.
+
+## Longer capture and disclosed section selection (2026-11-16)
+
+New motion captures use schema 3 with 32 timestamped frames (about four seconds).
+The service scans consecutive 16-frame windows in chronological order and uses
+the first that passes existing timing, image and heuristic cut checks. Model
+scores never influence selection. Legacy schema-2 captures remain supported.
+
+The response includes zero-based start/end frame indices, playback time range and
+total captured frame count. The popup marks analyzed versus unanalysed frames and
+states that the result describes only that section, not the whole video. Exports
+retain all 32 frames plus the returned window metadata. The evaluation command now
+uses the same selection path; duplicate accounting is based on the selected section.
+
+If none passes, no inference occurs. The cut heuristic can miss transitions and
+this does not establish robustness to animation, mixed content or all edited video.
+Selecting a section improves the opportunity to obtain usable input; it is not an
+accuracy improvement demonstrated on a fresh dataset.
+
+Validation: 40 Python tests, 14 extension tests and JS syntax checks passed.
+A controlled saved-frame fixture exercised actual popup/capture/scoring JavaScript
+against the running MPS HTTP service: 32 frames captured, 16 marked analyzed,
+result 0.13795, identical to the source section's prior result. The fixture repeats
+frames with synthetic timestamps and is a workflow test, not new video evidence.
+
+To use: launch Start-Uncanny.command, reload the unpacked extension, play a video,
+expand Motion test and click Check motion. Keep the popup open through capture and
+analysis. No file export is required. The six-frame still-image mode remains separate.

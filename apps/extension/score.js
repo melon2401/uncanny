@@ -56,7 +56,7 @@ scoreButton.addEventListener('click', scoreFrames);
 document.getElementById('save-sample').addEventListener('click', () => {
   if (!scoreBatch.length) return;
   const source = new URL(targetTab.url); source.search = ''; source.hash = '';
-  const sample = {schema: captureMode === 'motion' ? 2 : 1, mode: captureMode, targetIntervalMs: captureMode === 'motion' ? 125 : 1100, source: source.href, label: document.getElementById('known-label').value,
+  const sample = {schema: captureMode === 'motion' ? (scoreBatch.length === 32 ? 3 : 2) : 1, mode: captureMode, targetIntervalMs: captureMode === 'motion' ? 125 : 1100, source: source.href, label: document.getElementById('known-label').value,
     capturedAt: new Date().toISOString(), result: lastResult, frames: scoreBatch};
   const url = URL.createObjectURL(new Blob([JSON.stringify(sample)], {type: 'application/json'}));
   const link = document.createElement('a'); link.href = url;
@@ -66,7 +66,7 @@ document.getElementById('save-sample').addEventListener('click', () => {
 
 
 async function scoreMotion() {
-  if (captureMode !== 'motion' || scoreBatch.length !== 16) return;
+  if (captureMode !== 'motion' || ![16, 32].includes(scoreBatch.length)) return;
   const request = new AbortController();
   pendingScore = request;
   const timeout = setTimeout(() => request.abort(), 120000);
@@ -74,14 +74,23 @@ async function scoreMotion() {
   try {
     const response = await fetch('http://127.0.0.1:8768/v1/motion', {
       method: 'POST', headers: {'Content-Type': 'application/json', 'X-Uncanny-Client': 'popup'},
-      body: JSON.stringify({schema: 2, mode: 'motion', frames: scoreBatch}), signal: request.signal
+      body: JSON.stringify({schema: scoreBatch.length === 32 ? 3 : 2, mode: 'motion', frames: scoreBatch}), signal: request.signal
     });
     if (!response.ok) throw new Error('Motion service could not process this capture.');
     const result = await response.json();
     if (pendingScore !== request) return;
     lastResult = result;
     document.getElementById('headline').textContent = 'Motion check complete.';
-    document.getElementById('status').textContent = 'Experimental result — no AI/real verdict.';
+    document.getElementById('status').textContent = result.window
+      ? `Checked ${Number(result.window.start_seconds).toFixed(1)}–${Number(result.window.end_seconds).toFixed(1)}s of this video, not the whole clip.`
+      : 'No usable section found. Try a steadier part of the video.';
+    if (result.window) {
+      scoreBatch.forEach((frame, index) => {
+        const caption = document.getElementById('frames').children[index]?.children[1];
+        if (caption) caption.textContent = frame.time.toFixed(1) + 's' +
+          (index >= result.window.start_frame && index <= result.window.end_frame ? ' · analyzed' : ' · not analyzed');
+      });
+    }
     scoreResult.textContent = result.status === 'inconclusive'
       ? 'Inconclusive — ' + (result.issues || [result.reason || 'Insufficient motion evidence']).join('. ')
       : 'Real-reference signal: ' + Number(result.real_reference_score).toFixed(3) +

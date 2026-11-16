@@ -92,7 +92,7 @@ async function capture(mode = 'stills') {
   }
 
   const motion = mode === 'motion';
-  const count = motion ? 16 : 6;
+  const count = motion ? 32 : 6;
   document.getElementById('capture-motion').disabled = true;
   const job = { id: crypto.randomUUID(), cancelled: false, mode }; activeJob = job;
   document.getElementById('frame-details').open = false;
@@ -110,7 +110,7 @@ async function capture(mode = 'stills') {
     checkCancelled(job); showFrames(frames, mode);
     if (motion) {
       headline.textContent = 'Checking motion…';
-      status.textContent = '16 frames saved in memory. Expand below to label and save this test sample.';
+      status.textContent = 'Selecting a continuous section from 32 captured frames.';
       button.disabled = true;
       await scoreMotion();
       return;
