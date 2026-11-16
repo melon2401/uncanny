@@ -22,7 +22,7 @@ def main():
     children = []
     try:
         for python, script, port, service in [
-            (ROOT/'.venv/bin/python', 'server.py', 8767, 'stills'),
+            (Path('/opt/anaconda3/bin/python3'), 'visual_server.py', 8767, 'stills'),
             (Path('/opt/anaconda3/bin/python3'), 'motion_server.py', 8768, 'motion')]:
             if ready(port, service):
                 print(f'{service}: already ready.', flush=True)

@@ -32,10 +32,10 @@ async function scoreFrames() {
     lastResult = result;
     document.getElementById('headline').textContent = 'Analysis complete.';
     document.getElementById('status').textContent = 'Six frames checked on this Mac.';
-    scoreResult.textContent = label + ' · ' + signal + '/100' + (label === 'Inconclusive' ? (result.reason === 'conflicting_frames' ? ' — Frames disagree.' : result.reason === 'repeated_frames' ? ' — Too few distinct frames.' : ' — No reliable conclusion.') : ' — Signal across the sampled frames.');
+    scoreResult.textContent = result.summary || label + ' · ' + signal + '/100' + (label === 'Inconclusive' ? (result.reason === 'conflicting_frames' ? ' — Frames disagree.' : result.reason === 'repeated_frames' ? ' — Too few distinct frames.' : ' — No reliable conclusion.') : ' — Signal across the sampled frames.');
     scoreBatch.forEach((frame, index) => {
       const caption = document.getElementById('frames').children[index]?.children[1];
-      if (caption) caption.textContent = frame.time.toFixed(1) + 's · ' + frames[index] + '/100';
+      if (caption) caption.textContent = frame.time.toFixed(1) + 's · ' + (result.units === 'logit' ? Number(frames[index]).toFixed(2) + ' raw signal' : frames[index] + '/100');
     });
   } catch (error) {
     if (pendingScore === request) {

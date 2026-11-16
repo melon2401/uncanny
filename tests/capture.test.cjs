@@ -146,3 +146,11 @@ test('offline detector stops before capturing and explains recovery', async () =
  assert.equal(h.els.get('headline').textContent,'Start Uncanny first.');
  assert.equal(h.els.get('capture-motion').disabled,false);
 });
+test('visual model displays evidence text and raw logits without a percentage', async () => {
+ const h=popupHarness();await h.ctx.initialize();
+ h.ctx.fetch=async()=>({ok:true,json:async()=>({label:'AI-like visual signal',summary:'AI-like visual signal — This is not proof.',frames:[2,3,2,4,3,2],units:'logit'})});
+ await h.ctx.capture();
+ assert.equal(h.els.get('score-result').textContent,'AI-like visual signal — This is not proof.');
+ assert.match(h.els.get('frames').children[0].children[1].textContent,/raw signal/);
+ assert.doesNotMatch(h.els.get('score-result').textContent,/undefined|\/100|%/);
+});

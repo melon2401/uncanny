@@ -133,3 +133,17 @@ at `/opt/anaconda3/bin/python3` and approved local DINOv3 weights are needed for
 The extension checks readiness before capturing; if offline, it tells you to start
 the launcher instead of collecting frames and timing out. Reload the extension
 following an update. Motion results remain experimental, not AI/real probabilities.
+
+### Current experimental visual model
+
+The main launcher now uses **WaveRep G4** for six-frame visual analysis. Results
+are signed model evidence, not percentages. Disagreeing frames return inconclusive;
+negative evidence does not establish authenticity. See
+[the development comparison](docs/WAVEREP-2026-11-16.md) for misses, abstentions,
+limitations and the research/nonprofit license. STALL motion remains a separate
+experiment. This project does not claim reliably accurate detection across social media.
+
+The downloaded WaveRep checkpoint and isolated timm dependency are local under
+`.models/`; a new GitHub clone does not include them. Restore those local assets or
+follow the pinned upstream download details in the comparison report before using
+the launcher. `detector/server.py` remains available for legacy-model rollback.
