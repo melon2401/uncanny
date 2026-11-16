@@ -109,8 +109,14 @@ header { flex-direction: row; align-items: center; gap: 14px; margin-bottom: 18p
 .disclaimer { color: #aeb3bf; }
 
 /* Docked Chrome side panel: the browser reserves space beside the page. */
-html, body { width: 100%; min-width: 0; }
-.popup { width: 100%; max-width: 440px; margin: 0 auto; }
+html, body { width: 340px; min-width: 340px; }
+html.side-panel, html.side-panel body { width: 100%; min-width: 0; }
+.popup { width: 100%; max-width: 380px; margin: 0 auto; }
 .context { flex-wrap: wrap; }
 header { flex-wrap: wrap; }
 #status, #score-result { overflow-wrap: anywhere; }
+
+/* Comfortable spacing without a tall, narrow status column. */
+#status { line-height: 1.45; min-height: 34px; }
+#analyze-button { white-space: nowrap; }
+@media (max-width: 320px) { html.side-panel .popup { padding-left: 16px; padding-right: 16px; } html.side-panel .tagline { font-size: 8px; } }

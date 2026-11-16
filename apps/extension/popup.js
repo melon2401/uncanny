@@ -108,7 +108,7 @@ async function capture(mode = 'stills') {
     for (let i = 0; i < count; i++) {
       if (i) await new Promise(resolve => setTimeout(resolve, motion ? 125 : 1100));
       checkCancelled(job);
-      status.textContent = `Capturing frame ${i + 1} of ${count}. Keep Uncanny open and the video playing.`;
+      status.textContent = `Frame ${i + 1} of ${count} · Keep the video playing.`;
       frames.push(await readFrame(job));
     }
     checkCancelled(job); showFrames(frames, mode);
@@ -157,7 +157,7 @@ async function initialize() {
     [targetTab] = await chrome.tabs.query({ active: true, currentWindow: true });
     const platform = detectPlatform(targetTab?.url);
     platformName.textContent = platform || 'Open Uncanny on a video';
-    status.textContent = platform ? 'Play the video. Keep Uncanny open and stay on the same video while capturing.' : 'Open a Short, Reel or TikTok, then click the Uncanny toolbar icon to grant access to that tab.';
+    status.textContent = platform ? 'Play a video, then analyze. Keep it playing.' : 'Open a Short, Reel or TikTok, then click the Uncanny toolbar icon to grant access to that tab.';
     button.disabled = !platform;
     document.getElementById('capture-motion').disabled = !platform;
   } catch {

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en" class="side-panel">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Uncanny — Look twice.</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main class="popup">
+    <header><div class="wordmark">uncanny</div><span class="tagline">LOOK TWICE.</span></header>
+    <div class="context"><span class="context-dot"></span><span id="platform-name">Checking page…</span><span class="preview-label">ON DEVICE</span></div>
+    <section id="scanner" class="scanner" aria-label="Human-to-robot character scanning animation">
+      <span class="corner top-left"></span><span class="corner top-right"></span>
+      <span class="corner bottom-left"></span><span class="corner bottom-right"></span>
+      <div class="character">
+        <img src="assets/human.png" alt="Illustrated woman wearing orange, denim jorts and high-top sneakers" width="1024" height="1536">
+        <img class="robot-layer" src="assets/robot.png" alt="" aria-hidden="true" width="1024" height="1536">
+        <div class="scan-beam" aria-hidden="true"></div>
+      </div>
+      <span class="scan-label" aria-hidden="true">UNCANNY</span>
+    </section>
+    <div class="heading-row"><h1 id="headline">A second look.</h1><span id="activity" class="activity" aria-hidden="true"><i></i><i></i><i></i></span></div>
+    <p id="status" role="status">Play a video to capture six frames.</p>
+    <p class="mode-note">Visual analysis · six sampled frames</p>
+    <button id="analyze-button" type="button" disabled>Analyze video</button>
+    <section id="capture-results" hidden aria-label="Captured video frames">
+      <p id="score-result" role="status"></p>
+      <button id="score-frames" type="button" hidden>Retry analysis</button>
+      <details id="frame-details">
+      <summary id="frames-summary">View six captured frames</summary>
+      <div id="frames"></div>
+      <p id="capture-note"></p>
+      <label for="known-label">Optional: label this sample</label>
+      <select id="known-label"><option value="unknown">Unknown</option><option value="ai">Known AI</option><option value="real">Known real</option></select>
+      <button id="save-sample" type="button">Export sample</button>
+      <p class="disclaimer">Saves frames and this video’s URL to a local JSON file. Nothing is uploaded.</p>
+      </details>
+      <button id="clear-frames" type="button">Clear frames</button>
+    </section>
+    <details id="capture-options">
+      <summary>Advanced: motion research</summary>
+      <p class="disclaimer">Captures about four seconds and checks one usable section. Experimental: animation and edits can mislead it.</p>
+      <button id="capture-motion" type="button" disabled>Check a motion section</button>
+    </details>
+    <p class="disclaimer">Experimental · v0.4.2 beta<br>Evidence about sampled frames—not proof of authenticity.</p>
+  </main>
+  <script src="capture.js"></script>
+  <script src="score.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

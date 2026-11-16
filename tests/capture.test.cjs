@@ -157,7 +157,7 @@ test('visual model displays evidence text and raw logits without a percentage', 
 test('toolbar opens docked panel in the clicked window without a popup', async () => {
  const manifest=JSON.parse(fs.readFileSync(path.join(root,'manifest.json'),'utf8'));
  assert.equal(manifest.action.default_popup,undefined);
- assert.equal(manifest.side_panel.default_path,'popup.html');
+ assert.equal(manifest.side_panel.default_path,'sidepanel.html');
  let listener,opened;
  const ctx=vm.createContext({console,chrome:{action:{onClicked:{addListener(fn){listener=fn}}},sidePanel:{open:async options=>{opened=options}},runtime:{sendMessage:async()=>{}}}});
  vm.runInContext(fs.readFileSync(path.join(root,'background.js'),'utf8'),ctx);
@@ -174,4 +174,10 @@ test('visual capture preserves portrait detail while motion retains its calibrat
 test('capture never invents resolution by upscaling a low-resolution source', () => {
  const f=fixture();f.video.videoWidth=180;f.video.videoHeight=320;
  const frame=f.sample();assert.equal(frame.width,180);assert.equal(frame.height,320);
+});
+
+test('panel and popup share controls while using separate sizing contexts', () => {
+ const popup=fs.readFileSync(path.join(root,'popup.html'),'utf8');
+ const panel=fs.readFileSync(path.join(root,'sidepanel.html'),'utf8');
+ assert.equal(panel,popup.replace('<html lang="en">','<html lang="en" class="side-panel">'));
 });
