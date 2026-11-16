@@ -22,8 +22,10 @@ function sampleVideo(session, expectedUrl, motion = false) {
   const frame = { time: video.currentTime, source, page: location.href, viewport: { width: innerWidth, height: innerHeight }, element: { left: r.left, top: r.top, width: r.width, height: r.height } };
   // Prefer clean video pixels, without page captions and controls.
   const canvas = document.createElement('canvas');
-  const scale = Math.min(1, 720 / Math.max(video.videoWidth, video.videoHeight));
+  const scale = Math.min(1, (motion ? 720 : 1280) / Math.max(video.videoWidth, video.videoHeight));
   canvas.width = Math.round(video.videoWidth * scale); canvas.height = Math.round(video.videoHeight * scale);
+  frame.width = canvas.width; frame.height = canvas.height;
+  frame.sourceWidth = video.videoWidth; frame.sourceHeight = video.videoHeight;
   try {
     canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
     frame.data = canvas.toDataURL('image/jpeg', 0.9);

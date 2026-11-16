@@ -45,10 +45,11 @@ async function readFrame(job) {
   const image = new Image(); image.src = screenshot; await image.decode();
   checkCancelled(job);
   const rect = cropBounds(frame, image.naturalWidth, image.naturalHeight);
-  const scale = Math.min(1, 720 / Math.max(rect.width, rect.height));
+  const scale = Math.min(1, 1280 / Math.max(rect.width, rect.height));
   const canvas = document.createElement('canvas');
   canvas.width = Math.round(rect.width * scale); canvas.height = Math.round(rect.height * scale);
   canvas.getContext('2d').drawImage(image, rect.x, rect.y, rect.width, rect.height, 0, 0, canvas.width, canvas.height);
+  frame.width = canvas.width; frame.height = canvas.height;
   frame.data = canvas.toDataURL('image/jpeg', 0.9);
   return frame;
 }

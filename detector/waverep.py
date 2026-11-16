@@ -35,11 +35,12 @@ def analyze(frames):
     if not isinstance(frames,list) or len(frames)!=6:raise ValueError('Expected six frames')
     transform=transforms.Compose([transforms.CenterCrop((504,504)),transforms.ToTensor(),
                                   transforms.Normalize([.485,.456,.406],[.229,.224,.225])])
-    tensors=[];fingerprints=set()
+    tensors=[];fingerprints=set();padded=0;dimensions=[]
     for frame in frames:
         if not isinstance(frame,str) or not frame.startswith('data:image/jpeg;base64,'):raise ValueError('Expected JPEG')
         with Image.open(io.BytesIO(base64.b64decode(frame.split(',')[1],validate=True)),formats=['JPEG']) as image:
-            if max(image.size)>720:raise ValueError('Frame too large')
+            if max(image.size)>1280:raise ValueError('Frame too large')
+            dimensions.append(list(image.size));padded+=int(min(image.size)<504)
             image=image.convert('RGB')
             fingerprints.add(hashlib.sha256(image.tobytes()).digest())
             tensors.append(transform(image))
@@ -48,4 +49,4 @@ def analyze(frames):
     with torch.inference_mode():
         for tensor in tensors:
             logits.append(float(model(tensor[None].to(device))[0,-1].cpu()))
-    return {**decision(logits,len(fingerprints)),'device':device}
+    return {**decision(logits,len(fingerprints)),'device':device,'padded_frames':padded,'input_dimensions':dimensions,'capture_pipeline':'visual-1280-v1'}

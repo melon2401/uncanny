@@ -164,3 +164,14 @@ test('toolbar opens docked panel in the clicked window without a popup', async (
  listener({id:7,windowId:3});await new Promise(resolve=>setImmediate(resolve));
  assert.equal(opened.windowId,3);
 });
+test('visual capture preserves portrait detail while motion retains its calibration size', () => {
+ const f=fixture();f.video.videoWidth=1080;f.video.videoHeight=1920;
+ const visual=f.sample();assert.equal(visual.width,720);assert.equal(visual.height,1280);
+ f.video.currentTime+=.125;f.video.playbackRate=1;
+ const motion=f.context.sampleVideo('motion-size',url,true);
+ assert.equal(motion.width,405);assert.equal(motion.height,720);
+});
+test('capture never invents resolution by upscaling a low-resolution source', () => {
+ const f=fixture();f.video.videoWidth=180;f.video.videoHeight=320;
+ const frame=f.sample();assert.equal(frame.width,180);assert.equal(frame.height,320);
+});
