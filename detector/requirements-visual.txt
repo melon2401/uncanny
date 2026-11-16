@@ -1,0 +1,6 @@
+# Main WaveRep inference runtime; tested on macOS Apple Silicon.
+torch==2.11.0
+torchvision==0.26.0
+timm==1.0.22
+numpy==1.26.4
+Pillow==10.3.0

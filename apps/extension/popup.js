@@ -97,6 +97,7 @@ async function capture(mode = 'stills') {
   const job = { id: crypto.randomUUID(), cancelled: false, mode }; activeJob = job;
   document.getElementById('frame-details').open = false;
   setScoreFrames([]); gallery.replaceChildren(); results.hidden = true;
+  scanner.classList.remove('is-complete');
   scanner.classList.add('is-scanning'); activity.classList.add('active'); button.classList.add('cancel');
   button.disabled = false; button.textContent = 'Cancel capture'; headline.textContent = 'Looking closer…';
   const frames = [];

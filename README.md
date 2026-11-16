@@ -1,149 +1,116 @@
-# Uncanny
+# Uncanny — Look twice.
 
-**Look twice.** A Chrome extension exploring frame-based AI-content detection
-for YouTube Shorts, Instagram Reels, and TikTok.
+A local-first Chrome extension that examines sampled video frames for AI-generation
+signals on YouTube Shorts, Instagram Reels and TikTok. **v0.4.0 is an experimental
+portfolio beta, not a validated authenticity verifier or a Chrome Web Store release.**
 
-> **Current milestone: local frame scoring.** Uncanny can score six captured stills using the [corrected Community Forensics model](https://huggingface.co/buildborderless/CommunityForensics-DeepfakeDet-ViT/tree/ac6ee457bea904a373065754107451793b56db00). No hashtag or platform label is sent to the scorer.
+<img src="docs/images/popup-ready.png" width="340" alt="Uncanny's dark popup with orange accents, scanning mascot and blue Analyze video button">
 
-From the project root, run once (tested with Python 3.12):
+*Interface preview using a simulated browser-tab context; not a detection result.*
 
-```sh
-python3.12 -m venv .venv
-.venv/bin/python -m pip install -r detector/requirements.txt
-```
+## Use it
 
-Start the detector before scoring:
+Tested on macOS Apple Silicon with Chrome. Python 3.11 or 3.12 and several GB of
+free disk space are needed. Other operating systems have not been validated.
 
-```sh
-.venv/bin/python detector/server.py
-```
+1. Clone this repository or extract the source release ZIP.
+2. From its folder, run `python3.12 detector/setup_visual.py` (or Python 3.11).
+   Review the model's nonprofit-use terms when prompted. This creates `.runtime`,
+   installs dependencies and downloads/verifies the approximately 330 MB model.
+   `Setup-Uncanny.command` does the same if `python3` is a supported version.
+3. Double-click **Start-Uncanny.command**. Keep the Terminal window open.
+4. Open `chrome://extensions`, enable **Developer mode**, choose **Load unpacked**,
+   and select this repository's `apps/extension` folder.
+5. Play a Short, Reel or TikTok, open Uncanny and click **Analyze video**.
+   Keep the popup open and stay on the video during capture and analysis.
 
-The first start downloads and verifies the model. Leave the terminal open. Click **Analyze video** to capture and score automatically. Expand **View six captured frames** only when you want to inspect the sample. Images are processed in memory on localhost. The display shows the median of six still-image signals on a 0–100 scale. Mixed evidence, or fewer than three distinct center crops, gives an inconclusive result. These prototype thresholds are not calibrated on social videos. The model sees the center of each frame and does not analyze motion or audio.
+No paid inference API or account is needed for the main mode. Setup downloads
+packages/model weights; analysis then runs locally. On the development Mac,
+WaveRep inference on six frames took approximately 1.3–2.2 seconds, excluding
+capture and model loading. This is not a cross-device latency guarantee.
 
-## Try it locally
+If the UI says **Start Uncanny first**, start the launcher and retry. After an
+update, reload the extension. If a port is occupied by an old detector, close its
+Terminal before relaunching. Exporting frames is optional, not required to analyze.
 
-1. Download this repository or clone it.
-2. Open `chrome://extensions` in Chrome and enable **Developer mode**.
-3. Select **Load unpacked**, then choose `apps/extension` inside this repository.
-4. Play a Short, Reel, or TikTok and open Uncanny from the extensions menu.
-5. Click **Analyze video**. Keep the popup open and stay on that video for
-   approximately 6–10 seconds.
-6. Read the result, or expand **View six captured frames** for timestamped thumbnails.
+### Optional motion research
 
-After editing extension files, reload Uncanny on `chrome://extensions`.
-Opening `popup.html` as a normal webpage only previews the interface;
-capture requires Chrome's extension APIs.
+**Advanced: motion research** captures approximately four seconds and analyzes the
+first 16-frame section that passes screening. It requires approved DINOv3 weights
+and the separate research Python environment. It is not required for normal use.
+See [motion setup and limitations](docs/MOTION-NEXT.md). The launcher skips this
+service when the optional model/dependencies are absent.
 
-## What works today
+## What the models actually do
 
-- Burnt-orange and cobalt-blue interface with an animated human-to-robot mascot.
-- Six sequential frame samples with playback timestamps.
-- Direct video-pixel capture where allowed, with a cropped-tab fallback.
-- Cancellation, clearing frames, and checks for video or tab changes.
-- Local-only processing: a loopback detector, no cloud scoring or tracking.
-- Automated tests and a local moving-video fixture.
+| Path | Model | Role |
+| --- | --- | --- |
+| Main Analyze button | WaveRep G4, a trained DINOv2-based detector | Measures generation-related visual signals in six sampled frames |
+| Optional motion experiment | Hugging Face DINOv3 + STALL | Compares spatial/temporal features with real-video reference statistics |
+| Legacy research only | Community Forensics and other baselines | Preserved comparison/rollback code; not the current main model |
 
-The user has confirmed seeing captured thumbnails in Chrome. This is an early
-prototype, not a guarantee that every player layout on all three platforms works.
+These are **pretrained models**, not a foundation model trained by this project.
+Uncanny implements capture, preprocessing, local serving, GPU acceleration,
+quality screening, evidence presentation and repeatable evaluation. Hashtags and
+platform AI labels are not passed to the models. Audio is not analyzed.
 
-## How capture works
+The main display requires at least five of six frame signs to agree:
 
-The extension selects the largest visible, loaded HTML video. It first draws
-decoded video pixels into a canvas. When cross-origin restrictions block that
-read, it captures the active tab and crops to the player. Each sample is resized
-to a maximum edge of 720 pixels.
+- **AI-like visual signal:** supporting model evidence, not proof.
+- **No strong AI evidence:** generated content can still be missed; not a real verdict.
+- **Inconclusive:** mixed evidence or insufficient distinct frames.
 
-The scan animation follows the capture job. Frames stay in popup memory and
-disappear when cleared or when the popup closes. Screenshot fallback can include
-player controls or text overlaid on the video; burned-in captions also remain.
+Raw signals appear in expandable details, not as claimed accuracy percentages.
 
-The planned detector will examine image content, not infer authenticity from
-hashtags or platform labels. Six sequential frames cover a short interval, not
-an entire video, and say nothing about AI-generated audio.
+## Measured results and honest limits
+
+On 11 already-inspected, user-labeled motion captures, the current main-model
+display policy flagged 4/5 AI samples and missed one. Of 6 real samples, five
+returned no strong AI evidence and one was inconclusive; none received an AI flag.
+On an earlier nine-video set, it flagged 2/4 AI samples, missed one and abstained
+on one; all five real samples were negative. These sets were used during development,
+labels were not independently authenticated, and this is **not a production accuracy estimate**.
+
+See [the full WaveRep comparison](docs/WAVEREP-2026-11-16.md), including the less
+conservative upstream rule, and [motion evaluation](docs/MOTION-EVALUATION.md).
+Compression, animation, unseen generators, editing and mixed content remain hard.
+The model sees cropped/resized samples, not the whole video. The motion cut screen
+is a heuristic and can miss transitions. Platform layouts and capture restrictions
+can change; support across every layout has not been established.
+
+## Privacy and architecture
+
+Chrome MV3 popup → frame capture → loopback Python service → model → evidence UI.
+The service listens only on `127.0.0.1` (8767 visual, 8768 optional motion).
+Frames stay in memory unless the user exports a sample. Exported JSON includes
+frames and the video's URL. No analytics or cloud inference is implemented.
+See [PRIVACY.md](PRIVACY.md) for permissions and retention.
 
 ## Development
-
-Chrome runs the extension without a build step. Tests require Node.js 20 or newer;
-there are no npm dependencies to install.
 
 ```sh
 npm test
 npm run check
+# Use a Python environment with detector/requirements.txt installed:
+.venv/bin/python -m unittest discover -s tests -p '*_test.py'
 ```
 
-For the standalone video test:
+The beta was checked with 45 Python tests, 15 JS tests, JS syntax checks and live
+HTTP/model checks. Popup ready/result states were rendered at 340px wide without
+horizontal overflow. A clean-machine installation has not yet been independently
+verified; the supplied installer has been reviewed and syntax checked.
 
-```sh
-python3 -m http.server 8766 --bind 127.0.0.1
-```
+`UNCANNY_PYTHON=/path/to/python` overrides the runtime. Otherwise the launcher
+prefers `.runtime/bin/python` for the main model, with the original development
+Anaconda installation as fallback. Research scripts and private captures are kept
+separate from normal usage. See [release notes](CHANGELOG.md) and [roadmap](docs/ROADMAP.md).
 
-Open `http://127.0.0.1:8766/tests/video-fixture.html` and click the capture button.
-This tests actual video-to-canvas sampling using locally generated moving imagery.
-The automated suite uses mocked Chrome APIs; it does not replace live site testing.
+## License and model attribution
 
-## Project layout
-
-```text
-apps/extension/       Manifest, popup, capture logic and mascot assets
-tests/               Automated checks and browser video fixture
-docs/                Development roadmap and contribution notes
-FRAME-CAPTURE.md      Capture implementation and limitations
-```
-
-## What's next
-
-1. Verify direct and fallback capture across all three platforms.
-2. Evaluate candidate detection models on known real and synthetic videos.
-3. Compare frame scores against source-video ground truth.
-4. Calibrate results and allow an inconclusive outcome.
-
-See [the development roadmap](docs/ROADMAP.md). No accuracy claims are made
-before evaluation. False positives and false negatives must be measured.
-
-## Design assets
-
-The mascot artwork was generated with AI and iterated using the project's
-character brief. The scanning effect is implemented in CSS; it is not a video
-analysis model.
-
-## License
-
-[MIT](LICENSE).
-
-## Detection validation
-
-The original-author preprocessing is now used; the previous path remains available for comparison. This is not yet a demonstrated accuracy improvement. Use the optional **Save test sample** control to export exact labeled frames locally. See [evaluation instructions](detector/EVALUATION.md). Captures are excluded from Git.
-
-## Easier local startup
-
-After initial setup, double-click `Start-Uncanny.command` in Finder and leave its Terminal window open. It starts the same free local detector; it does not enable cloud services. Detection remains experimental.
-
-Experimental STALL-derived files in `detector/stall_score.py` and
-`detector/compare_stall.py` are attributed separately under CC-BY-NC-4.0;
-see `detector/licenses/STALL.txt` and `docs/MOTION-NEXT.md`. They are not yet
-enabled in the extension.
-
-### One launcher for local analysis
-
-Double-click `Start-Uncanny.command` to start both the image and experimental motion
-services. Keep its Terminal window open. It reuses healthy services, reports startup
-failures, and stops only services it started when interrupted. The research Python
-at `/opt/anaconda3/bin/python3` and approved local DINOv3 weights are needed for motion.
-
-The extension checks readiness before capturing; if offline, it tells you to start
-the launcher instead of collecting frames and timing out. Reload the extension
-following an update. Motion results remain experimental, not AI/real probabilities.
-
-### Current experimental visual model
-
-The main launcher now uses **WaveRep G4** for six-frame visual analysis. Results
-are signed model evidence, not percentages. Disagreeing frames return inconclusive;
-negative evidence does not establish authenticity. See
-[the development comparison](docs/WAVEREP-2026-11-16.md) for misses, abstentions,
-limitations and the research/nonprofit license. STALL motion remains a separate
-experiment. This project does not claim reliably accurate detection across social media.
-
-The downloaded WaveRep checkpoint and isolated timm dependency are local under
-`.models/`; a new GitHub clone does not include them. Restore those local assets or
-follow the pinned upstream download details in the comparison report before using
-the launcher. `detector/server.py` remains available for legacy-model rollback.
+Application code is MIT except identified third-party/adapted research material.
+WaveRep code/model usage is restricted to nonprofit/informational purposes;
+[its license](detector/licenses/WaveRep.txt) is not replaced by this repo's MIT license.
+STALL-derived scoring is [CC BY-NC 4.0](detector/licenses/STALL.txt); DINOv3 has its
+own Meta license and access conditions. See [THIRD_PARTY.md](THIRD_PARTY.md).
+Model weights, credentials and private captures are excluded from the repository
+and release archive. Do not assume this beta is licensed for commercial deployment.

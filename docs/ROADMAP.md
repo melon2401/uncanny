@@ -1,42 +1,24 @@
-# Development roadmap
+# Release scope and next milestones
 
-## Completed: interface and capture
+## Shipped local beta (0.4.0)
 
-- [x] Chrome Manifest V3 extension
-- [x] Orange/blue theme and scanning mascot
-- [x] Six-frame sampling and timestamped thumbnails
-- [x] Direct-pixel capture and screenshot-crop fallback
-- [x] Cancel/clear controls and playback checks
-- [x] Eight automated tests and moving-video browser fixture
-- [x] User-confirmed thumbnail capture in Chrome
+- Chrome extension capture and compact branded interface.
+- Main pretrained WaveRep visual inference, conservative evidence display.
+- Optional DINOv3/STALL motion research; section selection disclosed to user.
+- Local launcher, readiness checks, model installer and private export.
+- Reproducible development reports, tests, privacy and license documentation.
 
-## Next: capture validation
+## Before a broader public product release
 
-- [ ] Record Chrome version, platform and capture method for each manual test.
-- [ ] Test Shorts, Reels and TikTok feed transitions and paused playback.
-- [ ] Check overlays, partially visible players and different zoom levels.
-- [ ] Improve error reporting for restricted or protected players.
+- Independently verify clean-machine setup and platform capture flows.
+- Evaluate a new provenance-verified, source-separated dataset across platforms,
+  animation, compression, editing and unseen generators. Set release criteria before testing.
+- Measure false flags, misses and abstention/coverage; do not tune on the final set.
+- Resolve commercial model licensing if commercial use is intended.
+- Package a backend installation/distribution path suited to ordinary users.
+- Prepare and review Chrome Web Store requirements separately.
 
-## Then: detector evaluation
+## Later, not part of this beta
 
-- [ ] Compare model licenses, deployment requirements and inference costs.
-- [ ] Build a small, permissioned real/synthetic evaluation set.
-- [ ] Separate examples by source video to prevent train/test leakage.
-- [ ] Evaluate compression, animation, filters and unseen generators.
-- [ ] Report false-positive and false-negative rates, not just accuracy.
-- [ ] Decide when insufficient evidence should produce an inconclusive result.
-
-## Implemented: local detector integration
-
-- [x] Verified model weights, six-frame scoring endpoint and input limits.
-- [x] Explicit local scoring, retry after failure and per-frame results.
-- [x] Inconclusive state for conflicting signals and repeated frames.
-
-## Later
-
-- [ ] Broader temporal/video analysis and separate audio analysis.
-- [ ] Mobile share-to-analyze workflow.
-- [ ] Chrome Web Store packaging and privacy documentation.
-
-No dates or completed milestones are fabricated. Commit dates record when work
-is saved to this repository; initial commits organize work developed before publication.
+Mobile share-to-analyze, audio signals, verified provenance evidence, automatic
+background operation and broader OS support. No dates or performance are promised.

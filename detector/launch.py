@@ -21,9 +21,16 @@ def ready(port, service):
 def main():
     children = []
     try:
-        for python, script, port, service in [
-            (Path('/opt/anaconda3/bin/python3'), 'visual_server.py', 8767, 'stills'),
-            (Path('/opt/anaconda3/bin/python3'), 'motion_server.py', 8768, 'motion')]:
+        configured=os.environ.get('UNCANNY_PYTHON')
+        python=Path(configured) if configured else (ROOT/'.runtime/bin/python' if (ROOT/'.runtime/bin/python').exists() else Path('/opt/anaconda3/bin/python3'))
+        services=[(python,'visual_server.py',8767,'stills')]
+        motion_python=Path(configured) if configured else (Path('/opt/anaconda3/bin/python3') if Path('/opt/anaconda3/bin/python3').exists() else python)
+        has_motion_deps=motion_python.exists() and subprocess.run([str(motion_python),'-c',"import torch, transformers"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode==0
+        if (ROOT/'.models/dinov3-hf/model.safetensors').exists() and has_motion_deps:
+            services.append((motion_python,'motion_server.py',8768,'motion'))
+        else:
+            print('Optional motion research model not installed; primary Analyze mode is available.',flush=True)
+        for python, script, port, service in services:
             if ready(port, service):
                 print(f'{service}: already ready.', flush=True)
                 continue

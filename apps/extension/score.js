@@ -30,6 +30,7 @@ async function scoreFrames() {
     const {signal, label, frames} = result;
     if (pendingScore !== request) return;
     lastResult = result;
+    document.getElementById('scanner').classList.add('is-complete');
     document.getElementById('headline').textContent = 'Analysis complete.';
     document.getElementById('status').textContent = 'Six frames checked on this Mac.';
     scoreResult.textContent = result.summary || label + ' · ' + signal + '/100' + (label === 'Inconclusive' ? (result.reason === 'conflicting_frames' ? ' — Frames disagree.' : result.reason === 'repeated_frames' ? ' — Too few distinct frames.' : ' — No reliable conclusion.') : ' — Signal across the sampled frames.');
@@ -80,6 +81,7 @@ async function scoreMotion() {
     const result = await response.json();
     if (pendingScore !== request) return;
     lastResult = result;
+    document.getElementById('scanner').classList.add('is-complete');
     document.getElementById('headline').textContent = 'Motion check complete.';
     document.getElementById('status').textContent = result.window
       ? `Checked ${Number(result.window.start_seconds).toFixed(1)}–${Number(result.window.end_seconds).toFixed(1)}s of this video, not the whole clip.`
