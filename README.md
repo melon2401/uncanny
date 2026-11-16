@@ -1,7 +1,7 @@
 # Uncanny — Look twice.
 
 A local-first Chrome extension that examines sampled video frames for AI-generation
-signals on YouTube Shorts, Instagram Reels and TikTok. **v0.4.0 is an experimental
+signals on YouTube Shorts, Instagram Reels and TikTok. **v0.4.1 is an experimental
 portfolio beta, not a validated authenticity verifier or a Chrome Web Store release.**
 
 <img src="docs/images/popup-ready.png" width="340" alt="Uncanny's dark popup with orange accents, scanning mascot and blue Analyze video button">
@@ -21,8 +21,8 @@ free disk space are needed. Other operating systems have not been validated.
 3. Double-click **Start-Uncanny.command**. Keep the Terminal window open.
 4. Open `chrome://extensions`, enable **Developer mode**, choose **Load unpacked**,
    and select this repository's `apps/extension` folder.
-5. Play a Short, Reel or TikTok, open Uncanny and click **Analyze video**.
-   Keep the popup open and stay on the video during capture and analysis.
+5. Play a Short, Reel or TikTok, open Uncanny to open its docked side panel, then click **Analyze video**.
+   Keep the panel open and stay on the video during capture and analysis.
 
 No paid inference API or account is needed for the main mode. Setup downloads
 packages/model weights; analysis then runs locally. On the development Mac,
@@ -114,3 +114,5 @@ STALL-derived scoring is [CC BY-NC 4.0](detector/licenses/STALL.txt); DINOv3 has
 own Meta license and access conditions. See [THIRD_PARTY.md](THIRD_PARTY.md).
 Model weights, credentials and private captures are excluded from the repository
 and release archive. Do not assume this beta is licensed for commercial deployment.
+
+Version 0.4.1 uses Chrome’s native side panel (Chrome 116+) so controls sit beside the page rather than floating over the video. Reload the extension after updating; Chrome may request the new sidePanel permission. Click the toolbar icon on each new tab to grant temporary access.

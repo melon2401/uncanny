@@ -23,3 +23,5 @@ account token. Tokens are never needed in chat and must not be committed to Git.
 
 This beta does not make an authenticity guarantee. The local HTTP interfaces are
 not designed for access from other machines or public hosting.
+
+The sidePanel permission displays Uncanny beside the webpage; it does not grant access to additional websites. Toolbar invocation grants temporary activeTab access.

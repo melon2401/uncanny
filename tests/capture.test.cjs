@@ -154,3 +154,13 @@ test('visual model displays evidence text and raw logits without a percentage', 
  assert.match(h.els.get('frames').children[0].children[1].textContent,/raw signal/);
  assert.doesNotMatch(h.els.get('score-result').textContent,/undefined|\/100|%/);
 });
+test('toolbar opens docked panel in the clicked window without a popup', async () => {
+ const manifest=JSON.parse(fs.readFileSync(path.join(root,'manifest.json'),'utf8'));
+ assert.equal(manifest.action.default_popup,undefined);
+ assert.equal(manifest.side_panel.default_path,'popup.html');
+ let listener,opened;
+ const ctx=vm.createContext({console,chrome:{action:{onClicked:{addListener(fn){listener=fn}}},sidePanel:{open:async options=>{opened=options}},runtime:{sendMessage:async()=>{}}}});
+ vm.runInContext(fs.readFileSync(path.join(root,'background.js'),'utf8'),ctx);
+ listener({id:7,windowId:3});await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(opened.windowId,3);
+});

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.1 — 2026-11-16
+
+- Replaced the floating toolbar popup with a native docked Chrome side panel.
+- Responsive panel layout and fresh active-tab selection before capture.
+- Chrome 116+ required; added sidePanel permission.
+- Layout verified at 300/340/440px; native toolbar action covered by automated test.
+
+
 ## 0.4.0-beta.1 — 2026-11-16
 
 First packaged experimental portfolio release for macOS + unpacked Chrome.

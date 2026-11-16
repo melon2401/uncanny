@@ -80,6 +80,8 @@ async function detectorReady(mode) {
 }
 
 async function capture(mode = 'stills') {
+  await initialize();
+  if (!detectPlatform(targetTab?.url)) return;
   button.disabled = true;
   document.getElementById('capture-motion').disabled = true;
   status.textContent = 'Checking local detector…';
@@ -105,7 +107,7 @@ async function capture(mode = 'stills') {
     for (let i = 0; i < count; i++) {
       if (i) await new Promise(resolve => setTimeout(resolve, motion ? 125 : 1100));
       checkCancelled(job);
-      status.textContent = `Capturing frame ${i + 1} of ${count}. Keep this popup open and the video playing.`;
+      status.textContent = `Capturing frame ${i + 1} of ${count}. Keep Uncanny open and the video playing.`;
       frames.push(await readFrame(job));
     }
     checkCancelled(job); showFrames(frames, mode);
@@ -117,7 +119,7 @@ async function capture(mode = 'stills') {
       return;
     }
     headline.textContent = 'Analyzing…';
-    status.textContent = 'Keep this popup open while we check the frames.';
+    status.textContent = 'Keep Uncanny open while we check the frames.';
     results.hidden = true;
     button.textContent = 'Analyzing…'; button.disabled = true;
     await scoreFrames();
@@ -153,8 +155,8 @@ async function initialize() {
   try {
     [targetTab] = await chrome.tabs.query({ active: true, currentWindow: true });
     const platform = detectPlatform(targetTab?.url);
-    platformName.textContent = platform || 'Unsupported page';
-    status.textContent = platform ? 'Play the video. Keep this popup open and stay on the same video while capturing.' : 'Open YouTube Shorts, Instagram or TikTok in this browser.';
+    platformName.textContent = platform || 'Open Uncanny on a video';
+    status.textContent = platform ? 'Play the video. Keep Uncanny open and stay on the same video while capturing.' : 'Open a Short, Reel or TikTok, then click the Uncanny toolbar icon to grant access to that tab.';
     button.disabled = !platform;
     document.getElementById('capture-motion').disabled = !platform;
   } catch {
@@ -162,3 +164,13 @@ async function initialize() {
   }
 }
 initialize();
+
+// Reusing a docked panel must not retain the previous tab's target or evidence.
+globalThis.chrome?.runtime?.onMessage?.addListener(message => {
+  if (message?.type !== 'uncanny-tab-selected') return;
+  if (activeJob) { activeJob.cancelled = true; return; }
+  setScoreFrames([]); gallery.replaceChildren(); results.hidden = true;
+  headline.textContent = 'A second look.';
+  scanner.classList.remove('is-complete');
+  initialize();
+});
