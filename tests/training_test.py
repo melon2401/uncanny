@@ -3,11 +3,11 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
 import numpy as np
 
 from detector.training_data import select, validate, REPO, REVISION, SOURCES
-from detector.trained_features import clip_feature, FEATURE_VERSION
+from detector.trained_features import clip_feature, capture_image, FEATURE_VERSION
+from detector.evaluate_trained_exports import samples
 from detector.extract_training import key
 from detector.train_visual import load_features, linear_scores, metrics, validation_threshold, wilson
 
@@ -80,6 +80,32 @@ class TrainingTests(unittest.TestCase):
         self.assertAlmostEqual(float(np.linalg.norm(f)), 1, places=6)
         with self.assertRaises(ValueError):
             clip_feature(np.full((6,1024),np.nan))
+
+    def test_baseline_receives_exact_same_captured_pixels(self):
+        import io
+        from PIL import Image
+        image = Image.fromarray(np.random.default_rng(2).integers(0,256,(200,160,3),dtype=np.uint8))
+        captured = capture_image(image)
+        baseline = Image.open(io.BytesIO(captured.info["capture_jpeg"])).convert("RGB")
+        np.testing.assert_array_equal(np.asarray(captured),np.asarray(baseline))
+
+    def test_exports_group_recaptures_and_include_motion(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for i,schema in enumerate((1,2)):
+                n = 6 if schema == 1 else 16
+                sample = dict(schema=schema,label="real",source=f"https://www.youtube.com/shorts/abc?tracking={i}",
+                              frames=[dict(data=f"fixture-{i}-{j}") for j in range(n)])
+                (root/f"{i}.json").write_text(json.dumps(sample))
+            grouped = samples(root)
+            self.assertEqual(len(grouped),1)
+            captures = next(iter(grouped.values()))
+            self.assertEqual(len(captures),2)
+            self.assertEqual(captures[1][1]["selected_indices"],[0,3,6,9,12,15])
+            sample["label"] = "ai"
+            (root/"1.json").write_text(json.dumps(sample))
+            with self.assertRaisesRegex(ValueError,"conflicting labels"):
+                samples(root)
 
 
 if __name__ == "__main__":

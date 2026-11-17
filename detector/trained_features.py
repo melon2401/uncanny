@@ -17,7 +17,9 @@ def capture_image(image):
         image = image.resize(tuple(max(1, round(s * scale)) for s in image.size), Image.Resampling.BILINEAR)
     data = io.BytesIO()
     image.save(data, format="JPEG", quality=90)
-    return Image.open(io.BytesIO(data.getvalue())).convert("RGB")
+    captured = Image.open(io.BytesIO(data.getvalue())).convert("RGB")
+    captured.info["capture_jpeg"] = data.getvalue()
+    return captured
 
 
 def compressed_image(image):

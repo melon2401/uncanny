@@ -2,7 +2,6 @@
 import argparse
 import base64
 import hashlib
-import io
 import json
 from pathlib import Path
 import time
@@ -42,9 +41,7 @@ def extract(plan_path, device, baseline=False, splits=None):
                 from waverep import analyze
             frames = []
             for image in images:
-                buffer = io.BytesIO()
-                image.save(buffer, format="JPEG", quality=90)
-                frames.append("data:image/jpeg;base64," + base64.b64encode(buffer.getvalue()).decode())
+                frames.append("data:image/jpeg;base64," + base64.b64encode(image.info["capture_jpeg"]).decode())
             result = analyze(frames)
             result.update(file=row["file"], video_sha256=row["sha256"])
             out.write_text(json.dumps(result, indent=2))

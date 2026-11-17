@@ -1,0 +1,7 @@
+# Optional frozen-feature research environment, Python 3.12 on Apple Silicon.
+# DINOv3 model weights require separate approved access and local download.
+-r requirements-visual.txt
+transformers==5.12.1
+huggingface_hub==1.21.0
+scikit-learn==1.4.2
+av==16.0.1

@@ -16,6 +16,11 @@ The feature extractor is frozen: this is **not** foundation-model training.
 - Exclude Veo entirely from training/validation. 360 training clips (60 real,
   300 AI), 120 validation clips (20 real, 100 AI), 140 test clips (20 real, 120 AI).
 - Plan SHA-256: `138e81cb205f4997fff2aa6b86abca11295afa11dd5d516610ca9c957e1a48c4`.
+- Content audit found 619 unique files among the 620 selected entries. The pair
+  `RunwayML/73/a.mp4` and `RunwayML/74/a.mp4` is identical and entirely within the
+  training split (359 unique training videos). There is no exact-file duplicate
+  across splits. The locked v1 fit retains this single duplicated training entry;
+  it is disclosed rather than silently changing the fit after model selection.
 - User exports are **external regression examples only**. They are already seen
   development examples, not an untouched test set and not training data here.
 - Action separation does not establish creator separation. Original source
@@ -60,6 +65,8 @@ The research environment needs NumPy, Pillow, scikit-learn, Torch, Transformers,
 huggingface_hub, the approved local DINOv3 weights and PyAV. On the development Mac,
 PyAV 16.0.1 is installed separately under `.models/training-deps`; all other research
 dependencies already existed. Expect a 3.3 GB video download plus model/packages.
+The tested optional environment is pinned in `detector/requirements-training.txt`;
+it is separate from the main app setup and requires the approved DINOv3 weights.
 
 ```sh
 python detector/training_data.py plan
@@ -69,6 +76,7 @@ python detector/train_visual.py train
 python detector/extract_training.py --splits test --device mps
 python detector/extract_training.py --splits test --baseline
 python detector/train_visual.py evaluate
+python detector/evaluate_trained_exports.py
 ```
 
 Use `--device cpu` for DINOv3 on machines without MPS. The baseline adapter chooses
@@ -78,6 +86,11 @@ evaluation set, not another claim of independent validation on this one.
 
 The cached feature matrices, trained head and full report are stored locally under
 `.models/training/deepaction-v1/`. None of these steps changes the live extension.
+The export regression includes schema-1 six-frame and schema-2/3 motion exports,
+selecting six uniformly spaced motion frames for this visual-model comparison.
+Known source URLs are grouped; any false flag on a real source counts as a failure,
+and an AI source is credited only if every capture is flagged. These user labels
+are not independently verified, and unknown reuploads may still repeat a source.
 
 ## Social-video follow-up
 
