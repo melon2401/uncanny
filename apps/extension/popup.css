@@ -2,8 +2,8 @@
 * { box-sizing: border-box; }
 /* Chrome sizes action popups from the document. Do not cap this with vw:
    the initial tiny viewport can otherwise constrain its own intrinsic width. */
-html { width: 340px; min-width: 340px; }
-body { margin: 0; width: 340px; min-width: 340px; }
+html { width: 320px; min-width: 320px; }
+body { margin: 0; width: 320px; min-width: 320px; }
 .popup { padding: 22px; }
 header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 21px; }
 .wordmark { font-size: 30px; font-weight: 850; letter-spacing: -1.7px; }
@@ -109,9 +109,9 @@ header { flex-direction: row; align-items: center; gap: 14px; margin-bottom: 18p
 .disclaimer { color: #aeb3bf; }
 
 /* Docked Chrome side panel: the browser reserves space beside the page. */
-html, body { width: 340px; min-width: 340px; }
+html, body { width: 320px; min-width: 320px; }
 html.side-panel, html.side-panel body { width: 100%; min-width: 0; }
-.popup { width: 100%; max-width: 380px; margin: 0 auto; }
+.popup { width: 100%; max-width: 320px; margin: 0 auto; }
 .context { flex-wrap: wrap; }
 header { flex-wrap: wrap; }
 #status, #score-result { overflow-wrap: anywhere; }
@@ -120,3 +120,6 @@ header { flex-wrap: wrap; }
 #status { line-height: 1.45; min-height: 34px; }
 #analyze-button { white-space: nowrap; }
 @media (max-width: 320px) { html.side-panel .popup { padding-left: 16px; padding-right: 16px; } html.side-panel .tagline { font-size: 8px; } }
+
+/* 320px middle width; native side-panel outer width is controlled by Chrome. */
+.popup { padding-left: 16px; padding-right: 16px; }

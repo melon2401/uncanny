@@ -71,6 +71,10 @@ On an earlier nine-video set, it flagged 2/4 AI samples, missed one and abstaine
 on one; all five real samples were negative. These sets were used during development,
 labels were not independently authenticated, and this is **not a production accuracy estimate**.
 
+**Subsequent user testing found a real-video false positive.** The model flagged
+five of six clean frames in that capture. See [the investigation](docs/FALSE-POSITIVE-2026-11-16.md).
+The earlier development-set results did not establish reliability on new examples.
+
 See [the full WaveRep comparison](docs/WAVEREP-2026-11-16.md), including the less
 conservative upstream rule, and [motion evaluation](docs/MOTION-EVALUATION.md).
 Compression, animation, unseen generators, editing and mixed content remain hard.
