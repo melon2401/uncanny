@@ -1,5 +1,6 @@
 """Shared frozen DINOv3 feature transform for training and local inference."""
 import io
+import hashlib
 import sys
 from pathlib import Path
 import numpy as np
@@ -7,6 +8,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 FEATURE_VERSION = "dinov3-l16-full-frame-224-bilinear-mean-l2-v1"
+BACKBONE_SHA256 = "dcb2e45127cccbf1601e5f42fef165eea275c8e5213197e8dcf3f48822718179"
 
 
 def capture_image(image):
@@ -46,9 +48,13 @@ class Embedder:
         from transformers import AutoModel
         if device == "mps" and not torch.backends.mps.is_available():
             raise ValueError("MPS unavailable; run with GPU access or select cpu")
+        with (ROOT / ".models/dinov3-hf/model.safetensors").open("rb") as weights:
+            if hashlib.file_digest(weights,"sha256").hexdigest() != BACKBONE_SHA256:
+                raise ValueError("DINOv3 weights differ from the pinned official checkpoint")
         self.device = device
         self.model = AutoModel.from_pretrained(ROOT / ".models/dinov3-hf", local_files_only=True).eval().to(device)
-        if self.model.config.hidden_size != 1024 or self.model.config.model_type != "dinov3_vit":
+        config = self.model.config
+        if (config.model_type, config.hidden_size, config.num_hidden_layers, config.patch_size) != ("dinov3_vit",1024,24,16):
             raise ValueError("Expected the approved DINOv3 ViT-L model")
 
     def __call__(self, images):

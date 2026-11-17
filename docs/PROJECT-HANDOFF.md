@@ -1,8 +1,39 @@
 # Uncanny — conversation and project handoff
 
-Updated 2026-11-12. This is a curated transfer of decisions and context from the
+Updated 2026-11-17. This is a curated transfer of decisions and context from the
 Codex conversation, not a verbatim transcript. Read current source, Git status and
 experiment reports before acting; older status paragraphs may be superseded.
+
+## Current checkpoint (supersedes older runtime notes below)
+
+- Pilot is complete and **not promoted**. Read `docs/TRAINING-RESULTS-2026-11-17.md`:
+  candidate flags 82/120 public AI clips vs WaveRep 116/120; real false flags 2/20
+  vs 7/20. On user exports, AI flags 6/10 vs 7/10; both false-flag 1/13 real sources.
+- User said they will request SLOP access. This is pending, not confirmed approved.
+  `prepare_slop.py` has fixture-tested metadata auditing/selection, but no real
+  gated metadata or videos were read. After approval, inspect the actual manifest,
+  exclusions, sizes and license scope before extending the training pipeline.
+- The user chose supervised training/adaptation, with free/local compute. Read
+  `docs/TRAINING-PILOT.md` and the latest results before doing more model swaps.
+- A frozen DINOv3 linear head has been fit on DeepAction: 360 training entries,
+  120 validation entries, 140 separate test entries. One same-split training
+  duplicate means 359 unique training files. No cross-split exact-file duplicates.
+- Candidate, features and full reports are under ignored
+  `.models/training/deepaction-v1/`. `candidate.json` is locked. Never retrain or
+  change its threshold against test outcomes and claim the same test is untouched.
+- Run `detector/evaluate_trained_exports.py` for already-seen user regressions.
+  It includes still and motion exports, grouping known source URLs. No user
+  export was used in this pilot's training or model selection.
+- Main app remains `detector/visual_server.py` with WaveRep on 8767; optional
+  `motion_server.py` on 8768 selects a 16-frame window from a 32-frame capture.
+  `detector/launch.py` starts both. Research uses `/opt/anaconda3/bin/python3`;
+  `.venv` supports tests, while `.runtime` is the preferred installed app runtime.
+- Extension v0.4.2 opens a native Chrome side panel (`sidepanel.html`) with 320px
+  content cap. The old `popup.html` is retained as a fallback; maintain markup
+  parity. The outer native panel width is controlled by Chrome/user resizing.
+- Hugging Face DINOv3 weights are installed and used. Their file SHA-256 matches
+  the official pinned revision; the training embedder now enforces that identity.
+- No paid API, gated SLOP download, or automatic deployment of the trained head.
 
 ## User intent and working style
 

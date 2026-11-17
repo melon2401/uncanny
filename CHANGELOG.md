@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased research — 2026-11-17
+
+- Trained a frozen-DINOv3 classifier with a pinned, checksum-verified DeepAction subset.
+- Completed independent public test comparison and all 23 saved-export regressions.
+- Rejected the candidate for deployment: fewer public false alarms but more AI misses.
+- Published aggregate results and reproducibility metadata; private media/weights remain local.
+- Prepared creator-separated SLOP metadata selection, pending the user's access approval.
+
 ## 0.4.1 — 2026-11-16
 
 - Replaced the floating toolbar popup with a native docked Chrome side panel.

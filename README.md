@@ -1,7 +1,7 @@
 # Uncanny — Look twice.
 
 A local-first Chrome extension that examines sampled video frames for AI-generation
-signals on YouTube Shorts, Instagram Reels and TikTok. **v0.4.1 is an experimental
+signals on YouTube Shorts, Instagram Reels and TikTok. **v0.4.2 is an experimental
 portfolio beta, not a validated authenticity verifier or a Chrome Web Store release.**
 
 <img src="docs/images/popup-ready.png" width="340" alt="Uncanny's dark popup with orange accents, scanning mascot and blue Analyze video button">
@@ -47,9 +47,11 @@ service when the optional model/dependencies are absent.
 | --- | --- | --- |
 | Main Analyze button | WaveRep G4, a trained DINOv2-based detector | Measures generation-related visual signals in six sampled frames |
 | Optional motion experiment | Hugging Face DINOv3 + STALL | Compares spatial/temporal features with real-video reference statistics |
+| Offline training pilot | Frozen DINOv3 + an Uncanny-trained linear classifier | Tests supervised adaptation on a fixed DeepAction split; separate from the app |
 | Legacy research only | Community Forensics and other baselines | Preserved comparison/rollback code; not the current main model |
 
-These are **pretrained models**, not a foundation model trained by this project.
+The foundation models are **pretrained**, not trained by this project. The offline
+training pilot fits a separate classifier on frozen DINOv3 features.
 Uncanny implements capture, preprocessing, local serving, GPU acceleration,
 quality screening, evidence presentation and repeatable evaluation. Hashtags and
 platform AI labels are not passed to the models. Audio is not analyzed.
@@ -61,6 +63,20 @@ The main display requires at least five of six frame signs to agree:
 - **Inconclusive:** mixed evidence or insufficient distinct frames.
 
 Raw signals appear in expandable details, not as claimed accuracy percentages.
+
+### Training work
+
+The [training pilot](docs/TRAINING-PILOT.md) uses verified public video files,
+separate training/validation/test activities, a generator excluded from training,
+and an additional compressed view of each training clip. It compares the locked
+classifier with the app's current detector on identical captured pixels, then
+checks existing user-labeled exports separately. Private captures and dataset/model
+files stay outside Git. The code does not automatically replace the live detector.
+
+**First training result:** the candidate reduced false flags on the public test
+from 7/20 real clips to 2/20, but AI detections fell from 116/120 to 82/120. It also
+underperformed on saved user exports, so it was not deployed. See the
+[completed comparison and next training step](docs/TRAINING-RESULTS-2026-11-17.md).
 
 ## Measured results and honest limits
 

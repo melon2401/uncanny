@@ -1,0 +1,160 @@
+{
+  "date": "2026-11-17",
+  "decision": "Do not deploy: pilot target failed and saved-export detection regressed",
+  "training_entries": 360,
+  "unique_training_videos": 359,
+  "validation_entries": 120,
+  "test": {
+    "schema": 1,
+    "candidate_sha256": "7994f4a3df6b9b6c1cb4d81c2a86b61a58e92cb39c239ac1cef59bc5f3a31114",
+    "plan_sha256": "138e81cb205f4997fff2aa6b86abca11295afa11dd5d516610ca9c957e1a48c4",
+    "candidate": {
+      "ai_clips": 120,
+      "real_clips": 20,
+      "ai_flagged": 82,
+      "ai_missed": 38,
+      "real_false_flags": 2,
+      "ai_recall": 0.6833333333333333,
+      "real_false_positive_rate": 0.1,
+      "balanced_accuracy": 0.7916666666666666,
+      "ai_recall_95ci": [
+        0.5955213183551313,
+        0.7597716539580108
+      ],
+      "real_false_positive_rate_95ci": [
+        0.027866481213768224,
+        0.3010336452284873
+      ]
+    },
+    "waverep": {
+      "ai_clips": 120,
+      "real_clips": 20,
+      "ai_flagged": 116,
+      "ai_missed": 4,
+      "real_false_flags": 7,
+      "ai_recall": 0.9666666666666667,
+      "real_false_positive_rate": 0.35,
+      "balanced_accuracy": 0.8083333333333333,
+      "ai_recall_95ci": [
+        0.917419662440894,
+        0.9869624489016494
+      ],
+      "real_false_positive_rate_95ci": [
+        0.18119182410108206,
+        0.5671457233147638
+      ],
+      "inconclusive_clips": 7,
+      "comparison_note": "AI-flag metrics: abstentions count as unflagged, not correct real verdicts"
+    },
+    "by_source": {
+      "BDAnimateDiffLightning": {
+        "clips": 20,
+        "ai_flags": 17,
+        "waverep_ai_flags": 19,
+        "unseen_generator": false
+      },
+      "CogVideoX5B": {
+        "clips": 20,
+        "ai_flags": 10,
+        "waverep_ai_flags": 18,
+        "unseen_generator": false
+      },
+      "Pexels": {
+        "clips": 20,
+        "ai_flags": 2,
+        "waverep_ai_flags": 7,
+        "unseen_generator": false
+      },
+      "RunwayML": {
+        "clips": 20,
+        "ai_flags": 18,
+        "waverep_ai_flags": 20,
+        "unseen_generator": false
+      },
+      "StableDiffusion": {
+        "clips": 20,
+        "ai_flags": 15,
+        "waverep_ai_flags": 20,
+        "unseen_generator": false
+      },
+      "Veo": {
+        "clips": 20,
+        "ai_flags": 6,
+        "waverep_ai_flags": 20,
+        "unseen_generator": true
+      },
+      "VideoPoet": {
+        "clips": 20,
+        "ai_flags": 16,
+        "waverep_ai_flags": 19,
+        "unseen_generator": false
+      }
+    },
+    "meets_predeclared_pilot_target": false,
+    "production_ready": false,
+    "limitations": [
+      "Only 20 independent action groups and 20 real test clips; intervals are clip-level approximations.",
+      "Action-disjoint, but creator identities unavailable and near-duplicate scenes not ruled out.",
+      "Six frames across a full public clip, not a live six-second social-media capture.",
+      "Older controlled generators and stock real footage; not representative of all current social videos.",
+      "Threshold selected on only 20 validation real clips; zero validation false flags is not a guarantee."
+    ]
+  },
+  "saved_export_regression": {
+    "candidate_sha256": "7994f4a3df6b9b6c1cb4d81c2a86b61a58e92cb39c239ac1cef59bc5f3a31114",
+    "evaluation": "already_seen_user_labeled_regression_not_independent",
+    "candidate": {
+      "ai_clips": 10,
+      "real_clips": 13,
+      "ai_flagged": 6,
+      "ai_missed": 4,
+      "real_false_flags": 1,
+      "ai_recall": 0.6,
+      "real_false_positive_rate": 0.07692307692307693,
+      "balanced_accuracy": 0.7615384615384616,
+      "ai_recall_95ci": [
+        0.31267376973365824,
+        0.8318196702937638
+      ],
+      "real_false_positive_rate_95ci": [
+        0.013710421242556586,
+        0.3331395092109959
+      ]
+    },
+    "waverep": {
+      "ai_clips": 10,
+      "real_clips": 13,
+      "ai_flagged": 7,
+      "ai_missed": 3,
+      "real_false_flags": 1,
+      "ai_recall": 0.7,
+      "real_false_positive_rate": 0.07692307692307693,
+      "balanced_accuracy": 0.8115384615384615,
+      "ai_recall_95ci": [
+        0.39677814746114537,
+        0.8922087325936989
+      ],
+      "real_false_positive_rate_95ci": [
+        0.013710421242556586,
+        0.3331395092109959
+      ]
+    },
+    "captures_evaluated": 23,
+    "limitations": "User labels not independently authenticated; source URLs grouped, unknown reuploads may remain."
+  },
+  "environment": {
+    "python": "3.12.4",
+    "packages": {
+      "numpy": "1.26.4",
+      "Pillow": "10.3.0",
+      "scikit-learn": "1.4.2",
+      "torch": "2.11.0",
+      "torchvision": "0.26.0",
+      "transformers": "5.12.1",
+      "huggingface_hub": "1.21.0"
+    },
+    "plan_sha256": "138e81cb205f4997fff2aa6b86abca11295afa11dd5d516610ca9c957e1a48c4",
+    "candidate_sha256": "7994f4a3df6b9b6c1cb4d81c2a86b61a58e92cb39c239ac1cef59bc5f3a31114",
+    "dinov3_weights_sha256": "dcb2e45127cccbf1601e5f42fef165eea275c8e5213197e8dcf3f48822718179"
+  }
+}
